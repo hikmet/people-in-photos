@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block public_content %}
+<section class="login-panel">
+  <div>
+    <span class="eyebrow">{{ t('l_eyebrow') }}</span>
+    <h1>{{ t('login') }}</h1>
+    {% if config.app_env == 'development' %}
+    <p class="muted login-note">{{ t('l_hint') }} <code>people-local</code></p>
+    {% endif %}
+  </div>
+  <div>
+    {% if error %}
+    <div class="notice error">{{ error }}</div>
+    {% endif %}
+    <form class="stack panel" action="{{ base }}/login" method="post">
+      {{ hidden() }}
+      <label for="password">{{ t('password') }}</label>
+      <input id="password" type="password" name="password" required autocomplete="current-password">
+      <button>{{ t('sign_in') }} {{ icon('arrow-up-right', 18) }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

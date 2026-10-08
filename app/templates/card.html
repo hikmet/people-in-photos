@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% from '_preview.html' import info as preview_info, image as preview_image, dialog as preview_dialog with context %}
+{% block content %}
+<a class="breadcrumb" href="{{ base }}{% if card.photo_set_id %}/dashboard/sets/{{ card.photo_set_id }}{% else %}/dashboard/cards{% endif %}">← {% if card.photo_set_id %}{{ t('c_photo_set') }}{% else %}{{ t('cards') }}{% endif %}</a>
+<div class="page-heading compact">
+  <div>
+    <span class="eyebrow">{% if card.photo_set_id %}{{ t('c_review_eyebrow') }}{% else %}{{ t('c_card_eyebrow') }}{% endif %}</span>
+    <h1 class="card-code-title">{{ format_code(card.code) }}</h1>
+    <span class="badge">{{ t('status_' + card.status) }}</span>
+    {% if card.sequence %}<span class="muted"> · {{ t('card_number')|replace('{n}', card.sequence) }}</span>{% endif %}
+  </div>
+</div>
+<div class="two-columns card-layout">
+  <section>
+    <div class="section-heading"><h2>{% if (attached and not has_draft) or card.status == 'deleted' %}{{ t('c_assigned') }}{% elif card.photo_set_id %}{{ t('c_proposed') }}{% else %}{{ t('c_waiting_marker') }}{% endif %}</h2><span>{{ attached|length }}</span></div>
+    <div class="photo-grid">
+    {% for link,p in attached %}
+      <article class="photo-tile" data-preview-tile>
+        {% if p.status == 'ready' %}{{ preview_image(p) }}{% else %}<div class="processing" data-processing>{{ t('st_' + p.status, p.status|capitalize) }}</div>{% endif %}
+        <div class="photo-tile-info">
+          <div>
+            <h3>{{ p.filename }}</h3>
+            {% if not link.delivered %}
+            <span class="badge">{{ t('c_proposed_badge') }}</span>
+            <label class="check proposal-choice">
+              <input form="deliver-group" type="checkbox" name="photo_ids" value="{{ p.id }}" {% if p.status != 'ready' %}disabled{% endif %}>
+              {{ t('c_deliver_this') }}
+            </label>
+            {% endif %}
+          </div>
+        </div>
+        {% if p.status == 'ready' %}{{ preview_info(p, '', t('status_delivered') if link.delivered else t('c_proposed_badge'), preview[p.id]) }}{% endif %}
+      </article>
+    {% else %}
+      <div class="empty-state panel"><span>⌁</span>{% if card.status == 'deleted' %}<h3>{{ t('c_deleted_none') }}</h3><p>{{ t('c_deleted_none_sub') }}</p>{% else %}<h3>{{ t('c_none') }}</h3><p>{{ t('c_none_sub') }}</p>{% endif %}</div>
+    {% endfor %}
+    </div>
+    {% if attached %}{{ preview_dialog() }}{% endif %}
+
+    {% if attached and card.status in ['waiting','delivered'] and has_draft %}
+    <form id="deliver-group" class="delivery-action" action="{{ base }}/dashboard/cards/{{ card.id }}/deliver" method="post">
+      {{ hidden() }}
+      {% if all_ready %}
+        <p>{{ t('c_select_hint') }}</p>
+        <button>{{ t('c_deliver_selected') }} {{ icon('arrow-up-right', 18) }}</button>
+      {% else %}
+        <p data-processing>{{ t('c_processing') }}</p>
+      {% endif %}
+    </form>
+    {% endif %}
+
+    <div class="section-heading"><h2>{{ t('c_history') }}</h2></div>
+    <div class="panel">
+    {% for r in records %}
+      <div class="timeline-item"><span class="live-dot"></span><div><a class="decision-record-link" href="{{ base }}/dashboard/consents/{{ r.id }}"><strong>{{ decision_label(r.kind, lang) }} {{ icon('arrow-up-right', 18) }}</strong></a><small>{{ r.created_at.strftime('%d %b %Y · %H:%M UTC') }} · {{ r.locale|upper }}</small></div><a href="{{ base }}/dashboard/consents/{{ r.id }}/pdf">PDF {{ icon('arrow-up-right', 18) }}</a></div>
+    {% else %}<p class="muted">{{ t('c_no_decision') }}</p>{% endfor %}
+    </div>
+  </section>
+  <aside>
+    <section class="recipient-link">
+      {# Shown until the card has photos: a virtual card's QR is scanned off this screen and photographed as the marker frame. #}
+      {% if not attached and card.status != 'deleted' %}<img src="{{ base }}/dashboard/cards/{{ card.id }}/qr" alt="{{ t('c_qr_alt') }}">{% endif %}
+      <strong class="mono">{{ format_code(card.code) }}</strong>
+      <p class="small muted break">{{ config.public_base_url }}/c/{{ card.code }}</p>
+      <a class="button secondary" href="{{ base }}/c/{{ card.code }}" target="_blank" rel="noopener noreferrer">{{ t('c_preview') }} {{ icon('arrow-up-right', 18) }}</a>
+    </section>
+    <section class="panel">
+      <h3>{{ t('c_note_title') }}</h3>
+      <form class="stack" action="{{ base }}/dashboard/cards/{{ card.id }}/edit" method="post">
+        {{ hidden() }}
+        <label>{{ t('c_note') }}<textarea name="notes" maxlength="1000">{{ card.notes }}</textarea></label>
+        <button class="secondary">{{ t('save') }}</button>
+      </form>
+    </section>
+    <section class="panel">
+      <h3>{{ t('inbox') }}</h3>
+      <div class="log compact">{% for label, rows in days %}<div class="log-day">{{ label }}</div>{% for r in rows %}<a class="log-row{% if r.tone %} {{ r.tone }}{% endif %}"{% if r.href %} href="{{ base }}{{ r.href }}"{% endif %}><time>{{ r.time }}</time><span class="log-line">{% if r.tone == 'approval' %}{{ icon('check', 18) }}{% elif r.tone == 'denial' %}{{ icon('x', 18) }}{% endif %}{{ r.line }}</span></a>{% endfor %}{% else %}<p class="muted">{{ t('c_no_activity') }}</p>{% endfor %}</div>
+    </section>
+    {% if card.status not in ('deleted', 'void') %}
+    <details class="panel">
+      <summary>{{ t('c_close') }}</summary>
+      <form class="stack" action="{{ base }}/dashboard/cards/{{ card.id }}/close" method="post">
+        {{ hidden() }}
+        {% if card.status == 'waiting' %}<button class="secondary" name="action" value="unavailable">{{ t('c_unavailable') }}</button>{% endif %}
+        <button class="danger" name="action" value="void">{{ t('c_void') }}</button>
+      </form>
+    </details>
+    {% endif %}
+    {% if deletable %}
+    <details class="panel">
+      <summary>{{ t('c_delete_title') }}</summary>
+      <form class="stack" action="{{ base }}/dashboard/cards/{{ card.id }}/delete-photos" method="post" data-confirm="{{ t('c_delete_confirm') }}">
+        {{ hidden() }}
+        <p class="small muted">{{ t('c_delete_body') }}</p>
+        <button class="danger">{{ t('c_delete_button') }}</button>
+      </form>
+    </details>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

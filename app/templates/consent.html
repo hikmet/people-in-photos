@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<a class="breadcrumb" href="{{ base }}/dashboard/cards/{{ card.id }}">← {{ t('r_back') }} {{ format_code(card.code) }}</a>
+<div class="page-heading compact">
+  <div>
+    <span class="eyebrow">{{ t('r_eyebrow') }}</span>
+    <h1>{{ decision_label(record.kind, lang) }}</h1>
+    <p class="muted">{{ t('r_recorded')|replace('{date}', record.created_at.strftime('%d %b %Y · %H:%M:%S UTC'))|replace('{lang}', record.locale|upper) }}</p>
+  </div>
+  <a class="button" href="{{ base }}/dashboard/consents/{{ record.id }}/pdf">{{ t('r_download') }} {{ icon('arrow-up-right', 18) }}</a>
+</div>
+
+<div class="two-columns record-layout">
+  <section>
+    <div class="panel">
+      <span class="eyebrow">{{ t('r_person') }}</span>
+      <dl class="record-grid">
+        <div><dt>{{ t('r_name') }}</dt><dd>{{ record.signer_name or t('r_name_missing') }}</dd></div>
+        <div><dt>{{ t('email') }}</dt><dd class="break">{{ record.signer_email or t('r_none') }}</dd></div>
+        <div><dt>{{ t('r_ip') }}</dt><dd class="mono">{{ record.ip or t('r_unavailable') }}</dd></div>
+        <div class="wide"><dt>{{ t('r_ua') }}</dt><dd class="mono break">{{ record.user_agent or t('r_unavailable') }}</dd></div>
+        <div><dt>{{ t('r_languages') }}</dt><dd class="mono break">{{ connection.accept_language or t('r_not_supplied') }}</dd></div>
+        <div><dt>{{ t('r_brands') }}</dt><dd class="mono break">{{ connection.get('browser_brands') or t('r_not_supplied') }}</dd></div>
+        <div><dt>{{ t('r_platform') }}</dt><dd class="mono break">{{ connection.get('platform') or t('r_not_supplied') }}</dd></div>
+        <div><dt>{{ t('r_mobile') }}</dt><dd class="mono">{{ connection.get('mobile') or t('r_not_supplied') }}</dd></div>
+      </dl>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">{{ t('r_photos') }}</span>
+      {% for photo in record.snapshot['photos'] %}
+      <article class="record-photo">
+        <div><strong>{{ photo['filename'] }}</strong><span class="badge {{ 'ready' if photo['allowed'] else 'private' }}">{{ t('r_allowed') if photo['allowed'] else t('r_kept') }}</span></div>
+        <dl>
+          <dt>{{ t('r_version') }}</dt><dd class="mono">{{ photo['id'] }}</dd>
+          <dt>{{ t('r_display_sha') }}</dt><dd class="mono break">{{ photo['display_sha256'] }}</dd>
+          <dt>{{ t('r_original_sha') }}</dt><dd class="mono break">{{ photo['original_sha256'] }}</dd>
+        </dl>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">{{ t('r_text') }}</span>
+      <p class="record-release">{{ record.snapshot['release_text'] }}</p>
+    </div>
+  </section>
+
+  <aside>
+    <section class="panel">
+      <span class="eyebrow">{{ t('r_details') }}</span>
+      <dl class="record-list">
+        <dt>{{ t('r_id') }}</dt><dd class="mono break">{{ record.id }}</dd>
+        <dt>{{ t('r_decision') }}</dt><dd>{{ decision_label(record.kind, lang) }}</dd>
+        <dt>{{ t('r_language') }}</dt><dd>{{ record.locale|upper }}</dd>
+        <dt>{{ t('b_role') }}</dt><dd>{{ record.snapshot['photographer'] }}</dd>
+        <dt>{{ t('r_accounts') }}</dt><dd class="break pre-line">{{ record.snapshot['accounts'] or t('r_none') }}</dd>
+        <dt>{{ t('r_attribution') }}</dt><dd>{{ t('attr_' + record.attribution, record.attribution|replace('_', ' ')|capitalize) }}{% if record.credit_name %} · {{ record.credit_name }}{% endif %}</dd>
+        <dt>{{ t('c_note') }}</dt><dd>{{ record.note or t('r_none') }}</dd>
+        <dt>{{ t('r_release_version') }}</dt><dd>{{ record.snapshot['release_version'] }}</dd>
+        <dt>{{ t('r_release_sha') }}</dt><dd class="mono break">{{ record.snapshot['release_sha256'] }}</dd>
+      </dl>
+    </section>
+    {% if previous or replacement %}
+    <section class="panel">
+      <span class="eyebrow">{{ t('r_chain') }}</span>
+      {% if previous %}<p><a href="{{ base }}/dashboard/consents/{{ previous.id }}">← {{ t('r_previous') }}: {{ decision_label(previous.kind, lang) }}</a></p>{% endif %}
+      {% if replacement %}<p><a href="{{ base }}/dashboard/consents/{{ replacement.id }}">{{ t('r_replacement') }}: {{ decision_label(replacement.kind, lang) }} {{ icon('arrow-up-right', 18) }}</a></p>{% endif %}
+    </section>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block public_content %}
+<section class="narrow error-page">
+  <span class="eyebrow">PEOPLE IN PHOTOGRAPHS</span>
+  <h1>{{ t('not_found') if missing else t('e_title') }}</h1>
+  {% if not missing %}
+  <p class="lead">{{ message }}</p>
+  <p><a href="{{ base }}/" data-back>← {{ t('e_back') }}</a></p>
+  {% endif %}
+  {% if missing %}
+  <form class="panel stack" action="{{ base }}/resolve" method="post">
+    {{ hidden() }}
+    <label>{{ t('code') }}<input name="code" placeholder="7K3M-9X2B-04HD-ZP8R" required maxlength="24"></label>
+    <button>{{ t('open') }}</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

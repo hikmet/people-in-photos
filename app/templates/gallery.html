@@ -1,0 +1,92 @@
+{% extends 'base.html' %}{% block public_content %}
+{% set delivered = card.status == 'delivered' %}
+<div class="subject-heading{% if delivered and asks %} with-steps{% endif %}">
+  <div>
+    <span class="eyebrow">{{ t('by') }} {{ photographer.public_name }}</span>
+    <h1>{% if delivered %}{{ t('gift') }}{% elif card.status == 'deleted' %}{{ t('deleted') }}{% elif card.status == 'unavailable' %}{{ t('unavailable') }}{% else %}{{ t('waiting') }}{% endif %}</h1>
+    <p>{{ photographer.bio }}</p>
+  </div>
+  {% if delivered and asks %}
+  <div class="how">
+    <div><i aria-hidden="true">{{ icon('download', 26) }}</i><b>{{ t('how_download') }}</b><span>{{ t('how_download_body') }}</span></div>
+    <div><i aria-hidden="true">✓</i><b>{{ t('how_choose') }}</b><span>{{ t('how_choose_body') }}</span></div>
+  </div>
+  {% endif %}
+</div>
+{% if message == 'saved' %}<div class="notice success">{{ t(message) }}</div>{% endif %}
+
+{% if card.status == 'waiting' %}
+<section class="narrow">
+  <div class="holding-art" aria-hidden="true"><span>{{ icon('arrow-up-right', 72) }}</span><i>{{ t('g_making') }}</i></div>
+  <p class="lead">{{ t('waiting_body') }}</p>
+</section>
+
+{% elif delivered %}
+{% if asks or record %}
+{# One question for every photo on the card, open at the top of the page until it is answered. #}
+<section class="decision" id="decide" aria-labelledby="decision-title">
+  {% if record %}
+  <div class="last">
+    <span>{{ t('record') }}: <b>{{ t('withdrawn' if record.kind == 'withdrawal' else 'declined' if record.kind == 'decline' else 'allowed') }}</b> · {{ record.created_at.strftime('%d %b %Y · %H:%M UTC') }}</span>
+    <span class="last-links">
+      <a href="{{ base }}/c/{{ card.code }}/records/{{ record.id }}.pdf" aria-label="{{ t('pdf') }}">PDF {{ icon('arrow-up-right', 18) }}</a>
+      {% if current %}<form action="{{ base }}/c/{{ card.code }}/consent" method="post">{{ hidden() }}<input type="hidden" name="form_token" value="{{ form_token }}"><input type="hidden" name="locale" value="{{ lang }}"><input type="hidden" name="language_token" value="{{ language_token(form_token,lang) }}"><button class="text-button" name="action" value="withdrawal">{{ t('withdraw') }}</button></form>{% endif %}
+    </span>
+  </div>
+  {% endif %}
+  {% if not prompt %}<details class="decision-change"><summary>{{ t('change_decision') }}</summary>{% endif %}
+  <div class="decision-grid">
+    <div class="decision-intro">
+      <span class="eyebrow">{{ t('decision_eyebrow') }}</span>
+      <h2 id="decision-title">{{ t('decision') }}</h2>
+      <p class="lead">{{ t('decision_body_one') if attached|length == 1 else t('decision_body')|replace('{n}', attached|length) }}</p>
+      {% if photographer_links %}<div class="accounts"><small>{{ t('accounts') }}</small><ul>{% for label, text, url in photographer_links %}<li><a href="{{ url }}" target="_blank" rel="noopener noreferrer"><span>{{ label }}</span><b>{{ text }}</b>{{ icon('arrow-up-right', 16) }}</a></li>{% endfor %}</ul></div>{% endif %}
+      <button type="button" class="text-button release-open" data-open="release-text">{{ t('release') }}</button>
+    </div>
+    <form class="stack" action="{{ base }}/c/{{ card.code }}/consent" method="post">
+      {{ hidden() }}<input type="hidden" name="form_token" value="{{ form_token }}"><input type="hidden" name="locale" value="{{ lang }}"><input type="hidden" name="language_token" value="{{ language_token(form_token,lang) }}">
+      {% if prompt and record %}<p class="notice">{{ t('new_photos_notice') }}</p>{% elif record %}<p class="notice">{{ t('replace_notice') }}</p>{% endif %}
+      <label>{{ t('name') }}<input name="signer_name" autocomplete="name" maxlength="150" value="{{ current.signer_name if current else '' }}"></label>
+      <label>{{ t('email') }}<input type="email" name="signer_email" autocomplete="email" maxlength="254" value="{{ current.signer_email if current else '' }}"><small>{{ t('email_hint') }}</small></label>
+      <label class="check"><input type="checkbox" name="adult">{{ t('adult') }}</label>
+      <details>
+        <summary>{{ t('credit_note') }}</summary>
+        <div class="stack">
+          <label>{{ t('attribution') }}<select name="attribution">{% for value in ['anonymous','credit','no_preference'] %}<option value="{{ value }}"{% if current and current.attribution == value %} selected{% endif %}>{{ t(value) }}</option>{% endfor %}</select></label>
+          <label class="credit-name">{{ t('credit_name') }}<input name="credit_name" maxlength="150" value="{{ current.credit_name if current else '' }}"></label>
+          <label>{{ t('note') }}<textarea name="note" maxlength="2000">{{ current.note if current else '' }}</textarea></label>
+        </div>
+      </details>
+      <button name="action" value="grant">{{ t('allow_one') if attached|length == 1 else t('allow') }} {{ icon('arrow-up-right', 18) }}</button>
+      <div class="or">{{ t('or') }}</div>
+      <button class="secondary" name="action" value="decline">{{ t('decline') }}</button>
+      <small>{{ t('minor') }}</small>
+    </form>
+  </div>
+  {% if not prompt %}</details>{% endif %}
+  <dialog id="release-text" class="release-dialog" aria-labelledby="release-title"><div class="dialog-heading"><h2 id="release-title">{{ t('release_title') }} <small class="release-version">v{{ release.version }}</small></h2><button type="button" class="close-button" data-close aria-label="{{ t('d_close') }}">×</button></div><p class="release-body">{{ release.text }}</p></dialog>
+</section>
+{% endif %}
+
+<section aria-labelledby="sheet-title">
+  <div class="sheet-head"><h2 id="sheet-title">{{ t('photos_title') }}</h2><small>{{ t('photos_hint') }}</small></div>
+  <div class="sheet">
+    {% for link,p in attached %}
+    <article class="tile">
+      <div class="tile-photo"><img src="{{ media(p,'display',card) }}" alt="{{ t('photo') }} {{ loop.index }}" {% if not loop.first %}loading="lazy"{% endif %}></div>
+      <div class="tile-bar">
+        <span>{{ t('photo') }} {{ loop.index }}</span>
+        <a href="{{ media(p,'original',card) }}?download=1">{{ icon('download', 18) }} {{ t('download') }}</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+{% elif card.status == 'deleted' %}
+<section class="narrow panel"><p>{{ t('deleted_body') }}</p>{% if record %}<a href="{{ base }}/c/{{ card.code }}/records/{{ record.id }}.pdf">{{ t('pdf') }} {{ icon('arrow-up-right', 18) }}</a>{% endif %}</section>
+{% else %}
+<section class="narrow panel"><p>{{ t('unavailable_body') }}</p></section>
+{% endif %}
+
+{% endblock %}

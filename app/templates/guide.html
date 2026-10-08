@@ -1,0 +1,107 @@
+{% extends 'base.html' %}{% block content %}
+{#- Screenshots come from scripts/guide_screenshots.py; refresh them when a page changes. -#}
+{% set img = '/static/guide/' ~ lang ~ '/' %}
+{% if lang == 'tr' %}
+{% set anim = {'card1': 'Kart 7K3M', 'card2': 'Kart A1B2', 'marker': 'QR karesi', 'stray': 'atanmadı', 'caption': 'Kamera sırası, "Portreler → QR kart" düzeninde. Her QR karesi, hemen önündeki portreleri o kartın altında toplar; işaretleyicisi olmayan kareler özel ve atanmamış kalır.'} %}
+{% set phases = [
+  {'eyebrow': '01 · İLK YÜRÜYÜŞTEN ÖNCE, BİR KEZ', 'title': 'Çalışma alanını hazırlayın', 'steps': [
+    {'title': 'Profilinizi ve izin metnini doldurun', 'body': 'Kişi kartını açtığında herkese açık adınızı, kısa tanıtımınızı ve çalışmalarınızı nerede bulabileceğini görür; izin sorusu bunları da gösterir. İzin metnini istediğiniz dilde, tek kutuya yazın; birden fazla dil için sürümleri art arda ekleyin. Kart logosunu ve varsayılan kart cümlesini de burada ayarlayın. Her düzenleme yeni bir sürüm oluşturur; önceki kararlar kendilerine gösterilen sürümü korur.', 'link': ('/dashboard/profile', 'profile'), 'img': ('profile', 'Profil sayfasındaki herkese açık profil paneli')},
+    {'title': 'Bir parti QR kart bastırın', 'body': 'Kaç kart istediğinizi seçin, önizlemeye bakın, son PDF\'i indirin ve kartvizit boyutunda bastırın. Son PDF yalnızca bir kez indirilir; böylece aynı kod hiçbir zaman iki kişiye verilmez. Önizleme sınırsızdır. Her kartta QR kodun yanında logonuz (yoksa adınız) ve parti oluştururken yazdığınız cümle basılır. Kartlar bir sete bağlı değildir: kart, QR karesi yüklendiğinde o sete katılır.', 'link': ('/dashboard/cards', 'cards'), 'img': ('cards', 'QR kartlar sayfasındaki parti ve tek kart üretme panelleri')},
+    {'title': 'Kart karesinin sırasını seçin ve buna sadık kalın', 'body': 'Kartı ya portrelerden sonra ya da önce fotoğraflarsınız. Yükleme hangisi olduğunu sorar. "Portreler → QR kart" tesadüfi karşılaşmalara uyar: kişi çekimden sonra fotoğrafını ister, siz de kartı verip fotoğraflarsınız. "QR kart → portreler" planlı çekimlere ve etkinliklere uyar. Bir günde ikisini karıştırmak, elle düzeltmek demektir.'},
+  ]},
+  {'eyebrow': '02 · SOKAKTA', 'title': 'Portre, kart, kartın fotoğrafı', 'steps': [
+    {'title': 'Portreyi çekin, sonra bir kart verin', 'body': 'Her zamanki gibi izin isteyin. Kişi hakkında hiçbir şey yazılmaz; kart onun teslim fişidir. Hemen tarayabilir ve adınızı taşıyan bir bekleme sayfası görür. Kartı saklar, birkaç gün sonra geri gelir.'},
+    {'title': 'Kartı fotoğraflayın', 'body': 'DSLR ile tek bir kare: QR kod kadrajın iyi bir bölümünü doldursun, net olsun, parlama olmasın. Bu "QR karesi" daha sonra kartı yanındaki çekimlere bağlar. Sonra yola devam edin; bir sonraki kart karesi bir sonraki grubu kapatır ya da açar.'},
+    {'title': 'Kart bitti mi: sanal kart üretin', 'body': 'Telefonda QR kartlar sayfasını açın, bir not ekleyin ("mavi palto, kitapçının önü") ve kişi ekrandaki kodu tarasın. Sonra ekranı DSLR ile fotoğraflayın; tıpkı basılı bir kart gibi. Kart sayfası, karta fotoğraf eklenene kadar QR kodu gösterir. Bunu unutursanız, evde o karşılaşmadan gereksiz bir kareyi kodu yazarak kartın işaretleyicisi yapabilirsiniz.', 'link': ('/dashboard/cards', 'cards'), 'img': ('virtual-card', 'Kart sayfasında, ekrandan taranabilen QR kod ve alıcı bağlantısı')},
+  ]},
+  {'eyebrow': '03 · EVDE', 'title': 'Her zamanki gibi düzenleyin, sonra yükleyin', 'steps': [
+    {'title': 'Aktarın, ayıklayın, düzenleyin, JPEG olarak dışa aktarın', 'body': 'QR karelerini ayıklamada silmeyin; onları portrelerle birlikte, kamera sırasında JPEG olarak dışa aktarın. Dosyalar doğal ad sırasıyla okunur, bu yüzden kameranın numaralandırmasını koruyun. Bir yüklemede en çok 500 dosya, her biri en çok 25 MB.'},
+    {'title': 'Bir set oluşturun ve yükleyin', 'body': 'Fotoğraf setleri sayfasında Yeni bir fotoğraf seti oluşturun düğmesine basın: bir yürüyüş, bir gezi, bir hafta. Kişilerin fotoğrafları paylaşmanıza izin vermesi gerekiyorsa (bu ülkeye ve fotoğrafın türüne bağlıdır) "Alıcılardan yayımlama izni iste" kutusunu işaretleyin; bunu sonra setin düzenleme penceresinden de değiştirebilirsiniz. Kullandığınız kart sırasını seçin, sonra dışa aktardığınız dosyaları panele bırakın. Uygulama QR karelerini okur, kartları sete bağlar ve her kart için bir fotoğraf grubu önerir. Henüz kimse hiçbir şey göremez.', 'link': ('/dashboard/sets', 'sets'), 'img': ('upload', 'Set sayfasındaki yükleme paneli ve kart sırası seçimi')},
+    {'title': 'Bir kart karesinin diziyi nasıl böldüğü', 'body': 'Her QR karesi, kendisinden hemen önceki portreleri kendi kartına bağlar (ya da diğer düzende hemen sonrakileri). Bir QR karesinin sınırı içinde olmayan kareler atanmamış kalır.', 'anim': true},
+    {'title': 'Her grubu inceleyin ve atayın', 'body': 'Yalnızca o kişiye ait fotoğrafları işaretleyin; işaretlenmeyenler özel ve atanmamış kalır. Atayın: kartın bağlantısı artık fotoğrafları kişinin dilinde gösterir. Kullanılabilir fotoğraf yoksa "Fotoğraf atama" kartı kapatır ve kişi nazik bir açıklama görür.', 'img': ('group', 'Bir QR grubu: önerilen fotoğraflar, onay kutuları ve atama düğmesi')},
+    {'title': 'Kaçırılan bir kareyi ya da fotoğrafı elle düzeltin', 'body': 'Bir grup yanlış görünüyorsa tarayıcı büyük olasılıkla bir işaretleyiciyi kaçırmıştır: parlama, bulanıklık, kadrajda küçük kalan kart. O karenin önizlemesini açın, kartın üzerindeki kodu yazın; yükleme yeniden gruplanır. Hiçbir karta ya da yanlış karta düşen bir fotoğraf da önizlemesinden düzeltilir: listeden kişinin kartını seçin, fotoğraf o gruba katılır. Atanmış bağlantılar olduğu gibi kalır.', 'img': ('preview', 'Fotoğraf önizlemesi: kart kodunu yazarak kareyi QR işaretleyicisi yapma formu')},
+    {'title': 'Temizleyin', 'body': 'Her grup atandığında ya da kapatıldığında atanmamış fotoğrafları silin. Dosyaları kalıcı olarak gider; gerekirse aynı dosyalar sonra yeniden yüklenebilir. Uygulama bir teslim ve izin aracıdır, arşiviniz değil.', 'img': ('cleanup', 'Set temizliği paneli ve atanmamış fotoğrafları silme düğmesi')},
+  ]},
+  {'eyebrow': '04 · SONRASINDA', 'title': 'Kişi karar verir, siz izlersiniz', 'steps': [
+    {'title': 'Kişi kendi zamanında karar verir', 'body': 'Her fotoğrafı orijinal dosya olarak indirir; izin şart değildir. Set izin istiyorsa sayfa açılır açılmaz tek bir soru sorar: adını yazıp yetişkin olduğunu onaylayarak tüm fotoğrafları paylaşmanıza izin verir ya da hepsini özel tutar. Yanıt karttaki tüm fotoğraflar için geçerlidir; sonradan fotoğraf eklerseniz soru yeniden sorulur. Aynı bağlantıdan dönüp fikrini değiştirebilir; her karar, her fotoğrafın küçük bir önizlemesini içeren bir PDF kaydı üretir.', 'img': ('recipient', 'Set izin istediğinde alıcının gördüğü sayfa: en üstte tüm fotoğraflar için tek soru, altında fotoğraflar ve indirme bağlantıları')},
+    {'title': 'Yalnızca hazır olanı yayımlayın', 'body': 'Set ve kart sayfalarında her fotoğraf durumunu gösterir: yayımlamaya hazır, karar bekleniyor, izin istenmedi, inceleme gerekiyor, özel kalsın. İzin isteyen setlerde yalnızca hazır olanları, internette ya da basılı olarak ve kişinin istediği şekilde anarak yayımlayın.', 'img': ('states', 'Set sayfasındaki fotoğraf karoları ve durum rozetleri')},
+    {'title': 'Hareket dökümünü izleyin', 'body': 'Açılışlar, indirmeler, kararlar ve geri çekmeler, her biri bir satır. Geri çekme, paylaşımı kendiniz kaldırmanız demektir: uygulama paylaşımları takip etmez. Kişi fotoğraflarının silinmesini isterse kart sayfasındaki "Fotoğrafları sil" ile silin.', 'link': ('/dashboard/inbox', 'inbox'), 'img': ('activity', 'Hareket dökümü: gün gün, her olay için tek satır')},
+  ]},
+] %}
+{% set tips = {'eyebrow': 'KÜÇÜK ALIŞKANLIKLAR', 'title': 'Bir akşam kazandıran ayrıntılar', 'items': [
+  'Kadrajı kartla doldurun ve QR\'nin net olduğunu kameranın ekranından kontrol edin.',
+  'Sert ayıklasanız bile QR karelerini dışa aktarımda tutun.',
+  'Kart mı kaybettiniz? Başkası bulmadan kart sayfasından iptal edin.',
+  'Bir partiyi asla yeniden bastırmayın; yeni bir parti üretin.',
+  'Bir fotoğrafın önizlemesini açın: kamera ayrıntılarını ve GPS varsa çekildiği yeri küçük bir haritada görürsünüz. Kişiler orijinal dosyayı yüklediğiniz gibi indirir, bu ayrıntılar dahil; sayfada gösterilen küçük sürümlerde hiçbiri yoktur.',
+  'İzin metnini sabit tutun; yalnızca iznin kendisi değişmeliyse düzenleyin.',
+]} %}
+{% else %}
+{% set anim = {'card1': 'Card 7K3M', 'card2': 'Card A1B2', 'marker': 'QR frame', 'stray': 'unassigned', 'caption': 'The camera sequence in "Portraits → QR card" order. Each QR frame gathers the portraits just before it under that card; frames with no marker stay private and unassigned.'} %}
+{% set phases = [
+  {'eyebrow': '01 · ONCE, BEFORE THE FIRST WALK', 'title': 'Set up the workspace', 'steps': [
+    {'title': 'Complete your profile and the permission text', 'body': 'Your public name, a short introduction and where to find your work are what a person sees when they open their card, next to the permission question. Write the permission text in any language, in one box; for several languages, add each version after the other. The card logo and default card sentence live here too. Every edit becomes a new version; earlier decisions keep the version they were shown.', 'link': ('/dashboard/profile', 'profile'), 'img': ('profile', 'The public profile panel on the profile page')},
+    {'title': 'Print a batch of QR cards', 'body': 'Choose how many, check the preview, download the final PDF and have it printed at business-card size. The final PDF downloads once, so that no code is ever handed to two people; the preview is unlimited. Each card prints your logo (or your name) and the sentence you write when generating the batch beside the QR code. Cards belong to no set: a card joins a set when its QR frame is uploaded.', 'link': ('/dashboard/cards', 'cards'), 'img': ('cards', 'The batch and single-card panels on the QR cards page')},
+    {'title': 'Pick the order of the card frame, and keep it', 'body': 'You photograph the card either after the portraits or before them. The upload asks which. "Portraits → QR card" suits chance encounters: the person asks for a copy after the shot, you hand a card and photograph it. "QR card → portraits" suits planned sessions and events. Mixing the two in one day means fixing groups by hand.'},
+  ]},
+  {'eyebrow': '02 · ON THE STREET', 'title': 'Portrait, card, photo of the card', 'steps': [
+    {'title': 'Take the portrait, then hand over a card', 'body': 'Ask as you always do. Nothing about the person is written down; the card is their claim ticket. They can scan it right away and see a holding page with your name. They keep the card and come back in a few days.'},
+    {'title': 'Photograph the card', 'body': 'One frame with the DSLR: the QR filling a good part of the frame, sharp, without glare. This "QR frame" is what ties the card to the neighbouring shots later. Then move on; the next card frame closes or opens the next group.'},
+    {'title': 'Out of cards: generate a virtual one', 'body': 'Open the QR cards page on the phone, add a note ("blue coat, outside the bookshop") and let the person scan the screen. Then photograph the screen with the DSLR, exactly like a printed card. The card page shows the QR code until the card has photos. If you forget, at home you can turn any spare frame from that encounter into the card\'s marker by typing its code.', 'link': ('/dashboard/cards', 'cards'), 'img': ('virtual-card', 'A card page with the QR code to scan from the screen and the recipient link')},
+  ]},
+  {'eyebrow': '03 · AT HOME', 'title': 'Edit as usual, then upload', 'steps': [
+    {'title': 'Import, cull, edit, export JPEGs', 'body': 'Keep the QR frames through the cull and export them together with the portraits, in camera order. Files are read in natural filename order, so keep the camera\'s numbering. Up to 500 files of 25 MB each per upload.'},
+    {'title': 'Create a set and upload', 'body': 'On the Photo sets page, press Create a new photo set: a walk, a trip, a week. If the people photographed must agree before you post (that depends on the country and the kind of photo), tick "Ask recipients for permission to publish"; you can change it later in the set\'s edit dialog. Choose the card order you used, then drop the exported files on the panel. The app reads the QR frames, attaches the cards to the set and proposes a group of photos for each card. Nobody can see anything yet.', 'link': ('/dashboard/sets', 'sets'), 'img': ('upload', 'The upload panel on a set page with the card-order choice')},
+    {'title': 'How a card frame splits the sequence', 'body': 'Every QR frame binds the portraits just before it to its card (or just after it, in the other order). Frames outside any QR frame\'s reach stay unassigned.', 'anim': true},
+    {'title': 'Review each group and assign', 'body': 'Tick only the photos that belong to that person; unticked photos stay private and unassigned. Assign: the card\'s link now shows the photos, in the person\'s language. No usable photo: "Do not assign photos" closes the card and the person sees a kind explanation.', 'img': ('group', 'A detected QR group with proposed photos, checkboxes and the assign button')},
+    {'title': 'Fix a missed frame or photo by hand', 'body': 'If a group looks wrong, the scanner probably missed a marker: glare, blur, a card too small in the frame. Open that frame\'s preview, type the code printed on the card, and the upload is grouped again. A photo that ended up on no card, or on the wrong one, is fixed from its preview too: pick the person\'s card from the list and it joins that group. Assigned links stay as they are.', 'img': ('preview', 'The photo preview with the form that turns a frame into a QR marker by its code')},
+    {'title': 'Clean up', 'body': 'When every group is assigned or closed, delete the unassigned photos. Their files go for good; the same files can be uploaded again later if needed. The app is a delivery and permission tool, not your archive.', 'img': ('cleanup', 'The set cleanup panel with the button that deletes unassigned photos')},
+  ]},
+  {'eyebrow': '04 · AFTERWARDS', 'title': 'The person decides, you keep watch', 'steps': [
+    {'title': 'The person decides in their own time', 'body': 'They download each photo as the original file, never conditional on permission. If the set asks for permission, one question is open as soon as the page loads: they type their name and confirm they are an adult to allow all the photos, or keep them all private. The answer covers every photo on the card; add photos later and the question opens again. They can come back to the same link to change their mind, and every decision produces a PDF record with a small thumbnail of each photo.', 'img': ('recipient', 'The page a recipient sees when the set asks for permission: one question for all the photos at the top, the photos and their downloads below')},
+    {'title': 'Publish only what is ready', 'body': 'On the set and card pages every photo shows its state: ready to publish, awaiting decision, permission not asked, needs review, keep private. In sets that ask, publish only what is ready, online or in print, credited the way the person asked.', 'img': ('states', 'Photo tiles on a set page with their state badges')},
+    {'title': 'Watch the Activity logs', 'body': 'Opens, downloads, decisions and withdrawals, one line each. A withdrawal means taking the post down yourself: the app does not track posts. If the person asks for their photos to be deleted, use "Delete the photos" on their card page.', 'link': ('/dashboard/inbox', 'inbox'), 'img': ('activity', 'The activity log, one line per event, grouped by day')},
+  ]},
+] %}
+{% set tips = {'eyebrow': 'SMALL HABITS', 'title': 'Details that save an evening', 'items': [
+  'Fill the frame with the card, and check on the camera\'s screen that the QR is sharp.',
+  'Keep the QR frames in your export even when you cull hard.',
+  'Lost a card? Void it on the card page before someone else finds it.',
+  'Never reprint a batch; generate a new one instead.',
+  'Open a photo\'s preview for its camera details and, when it has GPS, a small map of where it was taken. People download the original file as you uploaded it, these details included; the smaller versions shown on the page carry none of it.',
+  'Keep the permission text stable; edit it only when the permission itself should change.',
+]} %}
+{% endif %}
+<div class="page-heading compact"><div><span class="eyebrow">{{ t('g_eyebrow') }}</span><h1>{{ t('guide') }}</h1><p class="muted">{{ t('g_intro') }}</p></div></div>
+<article class="guide">
+{% set counter = namespace(n=0) %}
+{% for phase in phases %}
+<section class="panel guide-phase"><span class="eyebrow">{{ phase.eyebrow }}</span><h2>{{ phase.title }}</h2><ol class="guide-steps">
+{% for step in phase.steps %}{% set counter.n = counter.n + 1 %}
+<li class="guide-step{% if step.img or step.anim %} with-figure{% endif %}"><span class="guide-number">{{ '%02d' % counter.n }}</span><div class="guide-text"><h3>{{ step.title }}</h3><p>{{ step.body }}</p>{% if step.link %}<a href="{{ base }}{{ step.link[0] }}">{{ t(step.link[1]) }} {{ icon('arrow-up-right', 18) }}</a>{% endif %}</div>
+{% if step.img %}<figure class="guide-figure"><img src="{{ img }}{{ step.img[0] }}.png" alt="{{ step.img[1] }}" loading="lazy"></figure>{% endif %}
+{% if step.anim %}<figure class="guide-figure guide-anim">
+<svg viewBox="0 0 640 210" role="img" aria-label="{{ anim.caption }}">
+  <g class="g-frames">
+  {% for kind in ['p', 'p', 'q', 'p', 'p', 'p', 'q', 'p'] %}{% set x = 18 + loop.index0 * 76 %}
+    <g class="g-frame g-{{ kind }}{% if loop.index0 < 3 %} g-in-1{% elif loop.index0 < 7 %} g-in-2{% else %} g-stray{% endif %}">
+      <rect x="{{ x }}" y="66" width="64" height="80" rx="4"/>
+      {% if kind == 'p' %}<circle cx="{{ x + 32 }}" cy="96" r="11"/><path d="M{{ x + 12 }} 138c0-14 9-22 20-22s20 8 20 22z"/>
+      {% else %}<rect x="{{ x + 13 }}" y="86" width="12" height="12"/><rect x="{{ x + 39 }}" y="86" width="12" height="12"/><rect x="{{ x + 13 }}" y="112" width="12" height="12"/><rect x="{{ x + 31 }}" y="104" width="6" height="6"/><rect x="{{ x + 41 }}" y="114" width="5" height="5"/><rect x="{{ x + 49 }}" y="122" width="4" height="4"/><rect x="{{ x + 33 }}" y="120" width="4" height="4"/>{% endif %}
+      <text x="{{ x + 32 }}" y="162" text-anchor="middle">{{ '%04d' % (41 + loop.index0) }}</text>
+    </g>
+  {% endfor %}
+  </g>
+  <rect class="g-cursor" x="14" y="60" width="72" height="92" rx="6"/>
+  <g class="g-group g-group-1"><path d="M20 52v-10h212v10"/><text x="126" y="30" text-anchor="middle">{{ anim.card1 }}</text><text class="g-tag" x="202" y="190" text-anchor="middle">{{ anim.marker }}</text></g>
+  <g class="g-group g-group-2"><path d="M248 52v-10h288v10"/><text x="392" y="30" text-anchor="middle">{{ anim.card2 }}</text><text class="g-tag" x="506" y="190" text-anchor="middle">{{ anim.marker }}</text></g>
+  <g class="g-group g-group-stray"><text class="g-tag" x="582" y="190" text-anchor="middle">{{ anim.stray }}</text></g>
+</svg>
+<figcaption>{{ anim.caption }}</figcaption></figure>{% endif %}
+</li>
+{% endfor %}
+</ol></section>
+{% endfor %}
+<section class="panel guide-tips"><span class="eyebrow">{{ tips.eyebrow }}</span><h2>{{ tips.title }}</h2><ul>{% for item in tips['items'] %}<li>{{ item }}</li>{% endfor %}</ul><p><a href="{{ base }}/dashboard/faq">{{ t('faq') }} {{ icon('arrow-up-right', 18) }}</a></p></section>
+</article>
+{% endblock %}

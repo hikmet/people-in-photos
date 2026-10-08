@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="stats">
+  <div><span>{{ t('d_stat_photos') }}</span><strong>{{ photos|length }}</strong><small>{{ t('d_stat_photos_sub') }}</small></div>
+  <div><span>{{ t('d_stat_cards') }}</span><strong>{{ cards|length }}</strong><small>{{ t('d_stat_cards_sub') }}</small></div>
+  <div><span>{{ t('d_stat_delivered') }}</span><strong>{{ cards|selectattr('status','equalto','delivered')|list|length }}</strong><small>{{ t('d_stat_delivered_sub') }}</small></div>
+  <div><span>{{ t('d_stat_permission') }}</span><strong>{{ ready }}</strong><small>{{ t('d_stat_permission_sub') }}</small></div>
+</div>
+<div class="section-heading">
+  <div>
+    <span class="eyebrow">{{ t('d_collection') }}</span>
+    <h1>{{ t('sets') }}</h1>
+  </div>
+  <span class="muted">{{ t('d_sets_count')|replace('{n}', sets|length) }}</span>
+</div>
+{% if sets %}
+<div class="set-grid">
+  {% for s in sets %}
+  {% set pics = set_photos(s) %}
+  <a class="set-card" href="{{ base }}/dashboard/sets/{{ s.id }}">
+    <div class="set-cover">{% if pics and pics[0].status == 'ready' %}<img src="{{ media(pics[0], 'display') }}" alt="{{ s.name }}" loading="lazy">{% else %}<div class="cover-placeholder"><span>{{ '%02d'|format(loop.index) }}</span><i>{{ t('d_making_1') }}<br>{{ t('d_making_2') }}</i></div>{% endif %}<span class="cover-label">{% if s.archived %}{{ t('d_archived') }}{% else %}{{ t('d_photo_set') }}{% endif %}</span></div>
+    <div class="set-info">
+      <h3>{{ s.name }} <span>{{ icon('arrow-up-right', 20) }}</span></h3>
+      <p>{{ s.location or t('d_place') }}</p>
+      <div class="set-meta">
+        <span>{{ t('d_photos_count')|replace('{n}', pics|length) }}</span>
+        <span>{{ t('d_cards_count')|replace('{n}', card_count(s)) }}</span>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+<button class="new-set-button" data-open="new-set">{{ t('d_new_collection') }} {{ icon('plus', 18) }}</button>
+<dialog id="new-set">
+  <div class="dialog-heading">
+    <h2>{{ t('new_set') }}</h2>
+    <button class="close-button" data-close aria-label="{{ t('d_close') }}">×</button>
+  </div>
+  <form class="stack" action="{{ base }}/dashboard/sets" method="post">
+    {{ hidden() }}
+    <label for="set-name">{{ t('d_name') }}</label>
+    <input id="set-name" name="name" placeholder="{{ t('d_name_placeholder') }}" maxlength="150" required>
+    <label for="location">{{ t('d_location') }}</label>
+    <input id="location" name="location" placeholder="{{ t('d_location_placeholder') }}" maxlength="150">
+    <label class="check"><input name="request_consent" type="checkbox"> <span>{{ t('s_ask_consent') }}<small>{{ t('s_ask_consent_hint') }}</small></span></label>
+    <button>{{ t('create') }} {{ icon('arrow-up-right', 18) }}</button>
+  </form>
+</dialog>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-heading compact">
+  <div>
+    <span class="eyebrow">{{ t('pr_eyebrow') }}</span>
+    <h1>{{ t('profile') }}</h1>
+    <p class="muted">{{ t('pr_intro') }}</p>
+  </div>
+</div>
+<form class="stack profile-form" action="{{ base }}/dashboard/profile" method="post" enctype="multipart/form-data">
+  {{ hidden() }}
+  <section class="panel">
+    <h2>{{ t('pr_public') }}</h2>
+    <div class="stack">
+      <label>{{ t('pr_name') }}<input name="public_name" value="{{ photographer.public_name }}" maxlength="100" required></label>
+      <label>{{ t('pr_bio') }}<textarea name="bio" maxlength="500">{{ photographer.bio }}</textarea></label>
+      <fieldset class="link-fields">
+        <legend>{{ t('pr_accounts') }}</legend>
+        <small>{{ t('pr_accounts_hint') }}</small>
+        {% for key, label in link_fields %}
+        <label>{{ label }}<input name="link_{{ key }}" value="{{ photographer.links.get(key, '') }}" maxlength="300" autocomplete="off" spellcheck="false" placeholder="{{ 'yourname.com' if key == 'website' else ('yourname.bsky.social' if key == 'bluesky' else '@yourname') }}"></label>
+        {% endfor %}
+      </fieldset>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>{{ t('pr_cards') }}</h2>
+    <p class="muted">{{ t('pr_cards_intro') }}</p>
+    <div class="stack">
+      {% if photographer.logo_updated_at %}
+      <div class="logo-swatch"><img src="{{ base }}/dashboard/profile/logo?v={{ photographer.logo_updated_at.timestamp()|int }}" alt="{{ t('pr_logo_alt') }}"></div>
+      <label class="check"><input type="checkbox" name="remove_logo" value="1"> {{ t('pr_logo_remove') }}</label>
+      {% endif %}
+      <label>{{ t('pr_logo') }}<input type="file" name="logo" accept="image/png,image/jpeg"></label>
+      <small>{{ t('pr_logo_hint') }}</small>
+      <label>{{ t('pr_card_text') }}<textarea name="card_text" maxlength="{{ card_text_max }}" placeholder="{{ t('pr_card_text_placeholder') }}">{{ photographer.card_text }}</textarea></label>
+      <small>{{ t('pr_card_text_hint')|replace('{max}', card_text_max) }}</small>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>{{ t('pr_release') }} <span class="count">v{{ release.version }}</span></h2>
+    <div class="notice">{{ t('pr_release_notice') }}</div>
+    <div class="stack">
+      <label>{{ t('pr_release_text') }}<textarea class="release-editor" name="release_text" maxlength="24000" required>{{ release.text }}</textarea></label>
+      <small>{{ t('pr_release_hint') }}</small>
+    </div>
+  </section>
+  <button>{{ t('save') }}</button>
+</form>
+{% endblock %}

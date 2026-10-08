@@ -1,0 +1,100 @@
+{# Photo preview overlay shared by the set page and the card page. #}
+{% macro info(p, badge_class, badge_text, entries, marker_action=none, attach_action=none, attach_cards=[]) %}
+<template data-preview-info>
+  <h3>{{ p.filename }}</h3>
+  <span class="badge {{ badge_class }}">{{ badge_text }}</span>
+  <p class="muted small">{{ p.width }} × {{ p.height }}{% if p.captured_at %} · {{ p.captured_at }}{% endif %}</p>
+  {% for card, link, record, decision in entries %}
+  <section class="preview-card">
+    <div class="preview-card-head"><span class="eyebrow">{{ t('pv_card') }}</span><a class="mono" href="{{ base }}/dashboard/cards/{{ card.id }}">{{ format_code(card.code) }} {{ icon('arrow-up-right', 18) }}</a></div>
+    {% if not link.delivered %}<p class="muted">{{ t('pv_not_delivered') }}</p>
+    {% elif not record %}<p class="muted">{{ t('pv_not_asked') if decision == 'not_asked' else t('pv_no_decision') }}</p>
+    {% else %}
+    <span class="badge {{ 'allowed' if decision == 'allowed' else 'review' if decision in ['pending','not_asked'] else 'private' }}">{{ t('r_allowed') if decision == 'allowed' else t('pv_not_covered') if decision == 'pending' else t('pv_not_asked') if decision == 'not_asked' else decision_label(record.kind, lang) }}</span>
+    <dl class="preview-facts">
+      {% if record.signer_name %}<dt>{{ t('d_name') }}</dt><dd>{{ record.signer_name }}</dd>{% endif %}
+      {% if record.signer_email %}<dt>{{ t('pv_email') }}</dt><dd>{{ record.signer_email }}</dd>{% endif %}
+      {% if record.attribution == 'credit' and record.credit_name %}<dt>{{ t('r_attribution') }}</dt><dd>{{ record.credit_name }}</dd>{% endif %}
+      {% if record.note %}<dt>{{ t('c_note') }}</dt><dd>{{ record.note }}</dd>{% endif %}
+    </dl>
+    <small class="muted">{{ t('r_recorded')|replace('{date}', record.created_at.strftime('%d %b %Y · %H:%M UTC'))|replace('{lang}', record.locale|upper) }}</small>
+    {% endif %}
+  </section>
+  {% else %}
+  <div class="preview-unassigned"><strong>{{ t('pv_unassigned') }}</strong><p>{{ t('pv_unassigned_hint') }}</p></div>
+  {% endfor %}
+  {% set tabs = exif_tabs(p.exif) %}
+  {% if tabs %}
+  <section class="preview-exif" data-exif>
+    <div class="exif-tabs" role="tablist" aria-label="{{ t('ex_title') }}">
+      {% for tab, rows in tabs %}<button type="button" role="tab" id="exif-tab-{{ tab }}" aria-controls="exif-{{ tab }}" aria-selected="{{ 'true' if loop.first else 'false' }}" data-exif-tab="{{ tab }}">{{ t('ex_tab_' ~ tab) }}</button>{% endfor %}
+    </div>
+    <div class="exif-panels">
+      {% for tab, rows in tabs %}
+      <div class="exif-panel{% if loop.first %} active{% endif %}" role="tabpanel" id="exif-{{ tab }}" aria-labelledby="exif-tab-{{ tab }}">
+        <dl class="preview-facts">
+          {% for tag, value in rows %}<dt>{{ t('ex_' ~ tag) }}</dt><dd>{{ value }}</dd>{% endfor %}
+        </dl>
+        {% set map = exif_map(p.exif) if tab == 'location' %}
+        {% if map %}
+        {# app.js loads the tiles from OpenStreetMap once this tab is opened, sending it this installation's address (as its tile policy asks) and the spot's rough location. #}
+        <figure class="exif-map">
+          <a class="exif-map-view" href="{{ map.link }}" target="_blank" rel="noopener" aria-label="{{ t('ex_map_open') }}" data-map-x="{{ map.x }}" data-map-y="{{ map.y }}">
+            <span class="exif-map-tiles">{% for src in map.tiles %}<img data-src="{{ src }}" alt="" width="256" height="256" referrerpolicy="origin">{% endfor %}</span>
+            <span class="exif-map-pin"></span>
+          </a>
+          <figcaption><a href="{{ map.link }}" target="_blank" rel="noopener">{{ t('ex_map_open') }}</a><span>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></span></figcaption>
+        </figure>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  <div class="preview-downloads">
+    <a class="button secondary" href="{{ media(p, 'display') }}?download=1">{{ t('pv_download_display') }} {{ icon('download', 18) }}</a>
+    <a class="button secondary" href="{{ media(p, 'original') }}?download=1">{{ t('pv_download_original') }} {{ icon('download', 18) }}</a>
+  </div>
+  {% if attach_action and attach_cards %}
+  <form class="preview-attach" action="{{ attach_action }}" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="photo_id" value="{{ p.id }}">
+    <strong>{{ t('pv_attach_title') }}</strong>
+    <p>{{ t('pv_attach_hint') }}</p>
+    <label>{{ t('pv_attach_card') }}<select name="card_id" required>
+      {% for c in attach_cards %}<option value="{{ c.id }}">{{ format_code(c.code) }}{% if c.sequence %} · #{{ c.sequence }}{% elif c.notes %} · {{ c.notes|truncate(24, true, '…') }}{% endif %}{% if c.status == 'delivered' %} · {{ t('status_delivered') }}{% endif %}</option>{% endfor %}
+    </select></label>
+    <button class="secondary">{{ t('pv_attach_button') }}</button>
+  </form>
+  {% endif %}
+  {% if marker_action %}
+  <form class="preview-marker" action="{{ marker_action }}" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="photo_id" value="{{ p.id }}">
+    <strong>{{ t('pv_marker_title') }}</strong>
+    <p>{{ t('pv_marker_hint') }}</p>
+    <label>{{ t('pv_marker_code') }}<input name="code" required minlength="16" maxlength="24" placeholder="7K3M-9X2B-04HD-ZP8R" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
+    <button class="secondary">{{ t('pv_marker_button') }}</button>
+  </form>
+  {% endif %}
+</template>
+{% endmacro %}
+
+{% macro image(p) %}
+<button type="button" class="photo-open" data-preview-open aria-label="{{ t('pv_open') }}"><img src="{{ media(p, 'display') }}" alt="{{ p.filename }}" loading="lazy"></button>
+{% endmacro %}
+
+{% macro dialog() %}
+<dialog id="photo-preview" class="lightbox" data-preview>
+  <figure class="lightbox-stage">
+    <button type="button" class="lightbox-nav prev" data-preview-prev aria-label="{{ t('pv_prev') }}">‹</button>
+    <img data-preview-img alt="">
+    <button type="button" class="lightbox-nav next" data-preview-next aria-label="{{ t('pv_next') }}">›</button>
+    <figcaption class="lightbox-counter" data-preview-counter></figcaption>
+  </figure>
+  <aside class="lightbox-info">
+    <button class="close-button lightbox-close" data-close aria-label="{{ t('d_close') }}">×</button>
+    <div data-preview-panel></div>
+  </aside>
+</dialog>
+{% endmacro %}

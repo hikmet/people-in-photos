@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-heading compact">
+  <div>
+    <h1>{{ t('inbox') }}</h1>
+    <p class="muted">{{ t('a_intro') }}</p>
+  </div>
+</div>
+{% if jobs %}
+<div class="section-heading">
+  <h2>{{ t('a_jobs') }}</h2>
+</div>
+<div class="panel">
+  {% for job in jobs %}
+  <div class="timeline-item" {% if job.status != 'failed' %}data-processing{% endif %}>
+    <div><strong>{{ t('job_' + job.type, job.type|replace('_',' ')|capitalize) }}</strong><small>{{ t('js_' + job.status, job.status) }} · {{ t('a_attempt') }} {{ job.attempts }}{% if job.error %} · {{ job.error }}{% endif %}</small></div>
+    {% if job.status == 'failed' %}
+    <form action="{{ base }}/dashboard/jobs/{{ job.id }}/retry" method="post">{{ hidden() }}<button class="secondary">{{ t('a_retry') }}</button></form>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+<div class="panel log">
+  {% for label, rows in days %}
+  <div class="log-day">{{ label }}</div>
+  {% for r in rows %}
+  <a class="log-row{% if r.tone %} {{ r.tone }}{% endif %}"{% if r.href %} href="{{ base }}{{ r.href }}"{% endif %}>
+    <time>{{ r.time }}</time>
+    <span class="log-line">{% if r.tone == 'approval' %}{{ icon('check', 18) }}{% elif r.tone == 'denial' %}{{ icon('x', 18) }}{% endif %}{{ r.line }}</span>
+    {% if r.card or r.set %}
+    <span class="log-card">{% if r.card %}<span class="mono">{{ format_code(r.card.code) }}</span>{% endif %}{% if r.set %}<small>{{ r.set.name }}</small>{% endif %}</span>
+    {% endif %}
+  </a>
+  {% endfor %}
+  {% else %}
+  <div class="empty-state">
+    <h3>{{ t('a_quiet') }}</h3>
+    <p>{{ t('a_quiet_sub') }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

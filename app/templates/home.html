@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block public_content %}
+<section class="landing">
+  <div class="eyebrow">{{ t('h_eyebrow') }}</div>
+  <h1>{{ t('home') }}</h1>
+  <p class="lead">{{ t('gift') }} {{ t('free') }}</p>
+  <form class="claim-form" action="{{ base }}/resolve" method="post">
+    {{ hidden() }}<label for="code">{{ t('code') }}</label>
+    <div class="inline">
+      <input id="code" name="code" placeholder="7K3M-9X2B-04HD-ZP8R" autocomplete="off" required maxlength="24">
+      <button>{{ t('open') }} {{ icon('arrow-up-right', 18) }}</button>
+    </div>
+  </form>
+  <a class="text-link" href="{{ base }}/login">{{ t('login') }} {{ icon('arrow-up-right', 16) }}</a>
+  {% if home_photo %}
+  <div class="ticket-art"><img src="{{ home_photo }}" alt=""></div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,68 @@
+name: people-in-photos
+x-app: &app
+  build: {context: ., target: runtime}
+  image: people-in-photos:local
+  env_file: .env
+  # The SQLite database and the photographs, in one volume.
+  volumes: ["data:/data"]
+  init: true
+  restart: unless-stopped
+services:
+  app:
+    <<: *app
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:8000/health]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  worker:
+    <<: *app
+    command: [python, -m, app.worker]
+    healthcheck:
+      test: [CMD, python, -m, app.worker, --health]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  caddy:
+    image: caddy:2.10-alpine
+    # Locally only on 127.0.0.1:8010. On a server, HTTP_BIND=80 and HTTPS_BIND=443 publish the
+    # standard ports and SITE_ADDRESS names the domain Caddy fetches a certificate for.
+    ports:
+      - "${HTTP_BIND:-127.0.0.1:8010}:80"
+      - "${HTTPS_BIND:-127.0.0.1:8443}:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      app: {condition: service_healthy}
+    restart: unless-stopped
+  tests:
+    build: {context: ., target: test}
+    image: people-in-photos:test
+    profiles: [test]
+    env_file: .env
+    environment:
+      DATABASE_PATH: /tmp/test/people.sqlite
+      STORAGE_BACKEND: local
+      STORAGE_ROOT: /tmp/test/storage
+    # output/ receives the smoke script's screenshots; app/static/guide/ the How to use pictures.
+    volumes: ["./output:/app/output", "./app/static/guide:/app/app/static/guide"]
+    # pip-audit checks the pinned dependencies against the public vulnerability databases, so the
+    # test run needs network access and fails when a pin has a known, fixed vulnerability.
+    command:
+      - sh
+      - -c
+      - >-
+        ruff check --no-cache . && pyright
+        && pip-audit --strict --disable-pip --no-deps -r requirements.lock -r requirements-dev.lock
+        && pytest -q -p no:cacheprovider
+networks:
+  default:
+    name: people-in-photos
+volumes:
+  data:
+  caddy-data:
+  caddy-config:

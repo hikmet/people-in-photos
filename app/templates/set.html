@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% from '_preview.html' import info as preview_info, image as preview_image, dialog as preview_dialog with context %}
+{% block content %}
+<a class="breadcrumb" href="{{ base }}/dashboard">← {{ t('sets') }}</a>
+<div class="page-heading compact">
+  <div>
+    <span class="eyebrow">{{ t('d_photo_set') }} · {{ t('s_asks') if photo_set.request_consent else t('s_no_ask') }}{% if photo_set.archived %} · {{ t('d_archived') }}{% endif %}</span>
+    <h1>{{ photo_set.name }}</h1>
+    <p class="muted">{{ photo_set.location }}{% if photo_set.description %} · {{ photo_set.description }}{% endif %}</p>
+  </div>
+  <button class="secondary" data-open="edit-set">{{ t('s_edit') }}</button>
+</div>
+
+{% if upload_markers is not none and not marked %}
+<div class="notice {% if upload_markers|int %}success{% endif %}">
+  {% if upload_markers|int %}
+    {{ t('s_found_one') if upload_markers|int == 1 else t('s_found_many')|replace('{n}', upload_markers) }}
+    {{ t('s_grouped_one') if upload_grouped|int == 1 else t('s_grouped_many')|replace('{n}', upload_grouped) }}
+    {% if upload_unassigned|int %}{{ t('s_remain_one') if upload_unassigned|int == 1 else t('s_remain_many')|replace('{n}', upload_unassigned) }}{% endif %}
+  {% else %}
+    {{ t('s_no_marker') }}
+  {% endif %}
+</div>
+{% endif %}
+{% if upload_skipped %}
+<div class="notice error">{{ t('s_skipped')|replace('{names}', upload_skipped) }}</div>
+{% endif %}
+{% if attached %}
+<div class="notice success">{{ t('s_attached') }}</div>
+{% endif %}
+{% if marked %}
+<div class="notice success">
+  {{ t('s_marked') }}
+  {{ t('s_grouped_one') if upload_grouped|int == 1 else t('s_grouped_many')|replace('{n}', upload_grouped) }}
+  {% if upload_unassigned|int %}{{ t('s_remain_one') if upload_unassigned|int == 1 else t('s_remain_many')|replace('{n}', upload_unassigned) }}{% endif %}
+</div>
+{% endif %}
+{% if cleaned is not none %}
+<div class="notice success">{{ t('s_cleaned_one') if cleaned|int == 1 else t('s_cleaned_many')|replace('{n}', cleaned) }}</div>
+{% endif %}
+
+<form class="upload-box" action="{{ base }}/dashboard/sets/{{ photo_set.id }}/upload" method="post" enctype="multipart/form-data" data-auto-upload data-msg-uploading-one="{{ t('s_js_uploading_one') }}" data-msg-uploading-many="{{ t('s_js_uploading_many') }}" data-msg-drop="{{ t('s_js_drop') }}" data-msg-jpeg="{{ t('s_js_jpeg') }}" data-msg-skipped="{{ t('s_js_skipped') }}">
+  <input type="hidden" name="skipped" value="">
+  {{ hidden() }}
+  <span class="upload-icon">↥</span>
+  <h2>{{ t('s_upload_title') }}</h2>
+  <p>{{ t('s_upload_intro') }}</p>
+  <fieldset class="grouping-switch">
+    <legend>{{ t('s_where') }}</legend>
+    <label>
+      <input type="radio" name="grouping_mode" value="qr_after" checked>
+      <strong>{{ t('s_after') }}</strong>
+      <small>{{ t('s_after_hint') }}</small>
+    </label>
+    <label>
+      <input type="radio" name="grouping_mode" value="qr_before">
+      <strong>{{ t('s_before') }}</strong>
+      <small>{{ t('s_before_hint') }}</small>
+    </label>
+  </fieldset>
+  <div class="upload-drop-action">
+    <input class="upload-file-input" type="file" name="photos" id="photos-upload" accept="image/jpeg,.jpg,.jpeg" multiple required aria-label="{{ t('s_choose_aria') }}">
+    <label class="button upload-picker" for="photos-upload">{{ t('s_choose') }}</label>
+    <span>{{ t('s_or_drop') }}</span>
+  </div>
+  <p class="upload-status" data-upload-status aria-live="polite">{{ t('s_auto') }}</p>
+  <small>{{ t('s_order') }}</small>
+  <noscript><button>{{ t('s_upload_button') }}</button></noscript>
+</form>
+
+<div class="section-heading">
+  <div><span class="eyebrow">{{ t('s_review_eyebrow') }}</span><h2>{{ t('s_groups') }}</h2></div>
+  <span class="count">{{ cards|length }}</span>
+</div>
+<div class="group-grid">
+{% for c in cards %}
+  {% set linked = card_photos[c.id] %}
+  {% set state = namespace(has_draft=false, all_ready=true) %}
+  {% set to_review = linked|rejectattr('0.delivered')|list|length %}
+  <form class="panel detected-group" action="{{ base }}/dashboard/cards/{{ c.id }}/deliver" method="post">
+    {{ hidden() }}
+    <input type="hidden" name="return_to" value="set">
+    <div class="group-heading">
+      <div>
+        <span class="mono">{{ format_code(c.code) }}</span>
+        {% if c.sequence %}<small>{{ c.sequence }} · {{ t('s_printed') }}</small>{% endif %}
+      </div>
+      <span class="badge">{{ t('status_' + c.status) }}{% if c.status == 'delivered' and to_review %} · {{ t('s_to_review')|replace('{n}', to_review) }}{% endif %}</span>
+    </div>
+    <div class="group-thumbs">
+      {% for link,p in linked %}
+        {% if not link.delivered %}{% set state.has_draft = true %}{% endif %}
+        {% if p.status != 'ready' %}{% set state.all_ready = false %}{% endif %}
+        <label class="group-photo-choice">
+          {% if p.status == 'ready' %}<img src="{{ media(p, 'thumb') }}" alt="{{ p.filename }}">{% else %}<span class="mini-processing">{{ t('st_' + p.status, p.status) }}</span>{% endif %}
+          {# Only a proposed photo needs a choice; one already given is shown as it is, and the badge above says so. #}
+          {% if not link.delivered %}
+            <span class="group-choice-label"><input type="checkbox" name="photo_ids" value="{{ p.id }}" {% if p.status != 'ready' %}disabled{% endif %}> {{ t('s_deliver') }}</span>
+          {% endif %}
+        </label>
+      {% else %}<p class="muted">{{ t('s_empty_group') }}</p>{% endfor %}
+    </div>
+    <div class="group-actions">
+      <a class="button secondary" href="{{ base }}/dashboard/cards/{{ c.id }}">{{ t('s_review_details') }} {{ icon('arrow-up-right', 18) }}</a>
+      {% if state.has_draft and state.all_ready %}<button>{{ t('s_deliver_selected') }}</button>{% endif %}
+      {% if c.status == 'waiting' %}<button class="secondary" type="submit" formaction="{{ base }}/dashboard/cards/{{ c.id }}/close" name="action" value="unavailable" data-confirm="{{ t('s_close_confirm') }}">{{ t('s_no_assign') }}</button>{% endif %}
+    </div>
+    {% if state.has_draft %}<small>{{ t('s_select_hint') }}</small>{% endif %}
+  </form>
+{% else %}
+  <div class="empty-state panel"><span>⌁</span><h3>{{ t('s_no_groups') }}</h3><p>{{ t('s_no_groups_sub') }}</p></div>
+{% endfor %}
+</div>
+
+<section class="panel set-cleanup{% if cleanup_ready %} ready{% endif %}">
+  <div>
+    <span class="eyebrow">{{ t('s_cleanup_eyebrow') }}</span>
+    <h2>{{ t('s_cleanup_title') }}</h2>
+    <p class="muted">{{ t('s_unassigned_one') if unassigned_count == 1 else t('s_unassigned_many')|replace('{n}', unassigned_count) }}</p>
+    {% if not cleanup_ready %}<small>{{ t('s_cleanup_hint') }}</small>{% endif %}
+  </div>
+  <form action="{{ base }}/dashboard/sets/{{ photo_set.id }}/delete-unassigned" method="post" data-confirm="{{ t('s_delete_confirm') }}">
+    {{ hidden() }}
+    <button class="danger" {% if not cleanup_ready or not unassigned_count %}disabled{% endif %}>{{ t('s_delete_one') if unassigned_count == 1 else t('s_delete_many')|replace('{n}', unassigned_count) }}</button>
+  </form>
+</section>
+
+<div class="section-heading"><h2>{{ t('photos') }}</h2></div>
+<div class="photo-grid">
+{% for p in photos %}
+  <article class="photo-tile" data-preview-tile>
+    {% if p.status == 'ready' %}{{ preview_image(p) }}
+    {% else %}<div class="processing" {% if p.status == 'pending' %}data-processing{% endif %}>{{ t('st_' + p.status, p.status|capitalize) }}<small>{{ p.error }}</small></div>{% endif %}
+    <div class="photo-tile-info">
+      <div>
+        <h3>{{ p.filename }}</h3>
+        <span class="badge {{ permissions[p.id] }}">{{ t(permissions[p.id]) }}</span>
+        <p class="muted small">{{ p.width }} × {{ p.height }}{% if p.captured_at %} · {{ p.captured_at }}{% endif %}</p>
+      </div>
+      {% if not preview[p.id] %}<strong class="tile-unassigned">{{ t('pv_unassigned') }}</strong>{% endif %}
+    </div>
+    {% if p.status == 'ready' %}{{ preview_info(p, permissions[p.id], t(permissions[p.id]), preview[p.id], (base ~ '/dashboard/sets/' ~ photo_set.id ~ '/marker') if markable[p.id] else none, (base ~ '/dashboard/sets/' ~ photo_set.id ~ '/attach') if markable[p.id] else none, open_cards) }}{% endif %}
+  </article>
+{% endfor %}
+</div>
+{% if photos %}{{ preview_dialog() }}{% endif %}
+
+<dialog id="edit-set">
+  <div class="dialog-heading"><h2>{{ t('s_edit') }}</h2><button class="close-button" data-close aria-label="{{ t('d_close') }}">×</button></div>
+  <form class="stack" action="{{ base }}/dashboard/sets/{{ photo_set.id }}/edit" method="post">
+    {{ hidden() }}
+    <label>{{ t('d_name') }}<input name="name" value="{{ photo_set.name }}" required maxlength="150"></label>
+    <label>{{ t('s_location') }}<input name="location" value="{{ photo_set.location }}" maxlength="150"></label>
+    <label>{{ t('s_description') }}<textarea name="description" maxlength="2000">{{ photo_set.description }}</textarea></label>
+    <label class="check"><input name="request_consent" type="checkbox" {% if photo_set.request_consent %}checked{% endif %}> <span>{{ t('s_ask_consent') }}<small>{{ t('s_ask_consent_hint') }}</small></span></label>
+    <label class="check"><input name="archived" type="checkbox" {% if photo_set.archived %}checked{% endif %}> {{ t('s_archive') }}</label>
+    <button>{{ t('save') }}</button>
+  </form>
+</dialog>
+{% endblock %}

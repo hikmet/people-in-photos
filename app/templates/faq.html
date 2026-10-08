@@ -1,0 +1,93 @@
+{% extends 'base.html' %}{% block content %}
+{% if lang == 'tr' %}
+{% set sections = [
+  {'title': 'Fotoğrafı çekilen kişi ne görür', 'items': [
+    ('Kartı tarayınca ne olur?', 'Fotoğrafları atamadan önce: kendi dilinde, adınızı ve tanıtımınızı taşıyan bir bekleme sayfası; doldurulacak hiçbir şey yok. Atadıktan sonra: fotoğrafları ve indirme bağlantıları; set izin istiyorsa, sayfanın en üstünde tüm fotoğraflar için tek bir izin sorusu. Daha sonra: son kararı, PDF kaydı ve fikrini değiştirmenin yolu.'),
+    ('Her sette izin istemem gerekir mi?', 'Hayır. Bu, ülkeye ve fotoğrafın türüne bağlıdır; karar sizindir. Bir seti oluştururken ya da düzenlerken "Alıcılardan yayımlama izni iste" kutusunu işaretleyin. Kapalıyken kart sayfası yalnızca fotoğrafları ve indirme bağlantılarını gösterir.'),
+    ('Fotoğrafları indirmek için izin vermek zorunda mı?', 'Hayır. İndirme hiçbir zaman izne bağlı değildir. Fotoğraflar bir hediyedir; soru ayrıdır.'),
+    ('Tam olarak neye izin veriyor?', 'Varsayılan metinle: kartındaki tüm fotoğrafların, seçtiği anılma tercihiyle, her ortamda ve her amaçla kullanılmasına; ticari kullanım, reklam, stok lisanslama ve baskı satışı dahil, süre sınırı olmadan. Varsayılan metin bilerek geniştir; ülkenizin kuralları gerektiriyorsa Profil sayfasında daraltın. Karar fotoğraf fotoğraf değil, kartın tamamı için verilir; sonradan eklenen fotoğraflar için soru yeniden sorulur. Tam kapsamı profilinizdeki izin metni belirler; metni değiştirmek daha önce verilmiş bir izni genişletmez.'),
+    ('Fikrini değiştirebilir mi?', 'Evet, her zaman, aynı bağlantıdan. Değişiklik ya da geri çekme önceki kararın yerine geçer ve Hareket dökümünde görünür. Zaten yaptığınız paylaşımları kaldırmak sizin işinizdir.'),
+    ('Fotoğraflarının silinmesini isterse ne olur?', 'Kişi size başvurur; kart sayfasını açıp "Fotoğrafları sil" ile silersiniz. Dosyalar kalıcı olarak gider, onları gösteren başka kartlardan da. Kişinin bağlantısı fotoğrafların silindiğini söyler, karar kayıtları ise kalır.'),
+    ('Silinen fotoğrafı kendi arşivimde nasıl bulurum?', 'Silmeden önce kart sayfasındaki dosya adlarını not edin: her fotoğraf, dışa aktardığınız kamera dosya adını korur. Ardından fotoğrafı arşivinizden, dışa aktarımlarınızdan ve hazırladığınız paylaşımlardan silin. Uygulama silmeden sonra hiçbir önizleme tutmaz.'),
+    ('Ya reşit değilse?', 'Veli yolu yoktur. Form, 18 yaşında veya daha büyük olduğunun onayını ister; 18 yaşından küçükler sizinle iletişime geçmeye yönlendirilir.'),
+    ('Hangi diller?', 'Türkçe ve İngilizce. Sayfalar ziyaretçinin seçimine uyar. İzin metnini ve kart cümlesini fotoğrafçı istediği dilde yazar; birden fazla dil için sürümleri art arda ekler ve metin her zaman tam olarak gösterilir.'),
+  ]},
+  {'title': 'Kartlar', 'items': [
+    ('Son PDF\'i neden yalnızca bir kez indirebiliyorum?', 'Bir sayfayı iki kez bastırmak, aynı kodu iki kişiye vermenin gerçekçi tek yoludur. Önizleme sınırsızdır; daha fazla kart için yeni bir parti üretin.'),
+    ('Bir kart bir sete mi ait?', 'QR karesi yüklenene kadar değil. Kartlar setsiz basılır ve o kareyi hangi sete yüklerseniz ona katılır.'),
+    ('Bir çift ya da grup için tek kart olur mu?', 'Evet. Bir fotoğraf yalnızca tek bir karta atanır; birlikte fotoğraflanan kişiler tek kartı paylaşır ve bağlantıya sahip herkes fotoğrafları görüp indirebilir. Set izin istiyorsa kart tek bir karar kaydeder; kararı yanıtlayan kişi verir. Herkesin kendi kararını vermesini istiyorsanız her birine ayrı bir kart verin ve her birinin ayrı bir portresini çekin.'),
+    ('Kart kaybolursa ya da yanlışlıkla verilirse?', 'Kart sayfasından iptal edin. Atanmış bir kartı iptal etmek kişinin erişimini de keser; o kartları olduğu gibi bırakmayı tercih edin.'),
+    ('Sanal kart nedir?', 'Basılı kartla aynı şey: telefonda üretilir ve ekrandan taranır. Kart sayfası, karta fotoğraf eklenene kadar QR kodu gösterir. Karşılaşmayı sonra tanımak için bir not ekleyin.'),
+  ]},
+  {'title': 'Yükleme ve gruplama', 'items': [
+    ('Hangi sıra, önce portreler mi kart mı?', 'Kamerayla gerçekten ne yaptıysanız o; yüklemede aynısını seçin. Karışık günlerde iki ayrı yükleme yapın ya da elle düzeltin.'),
+    ('Bir partideki kartlardan biri tanınmadı. Fotoğrafları nereye gitti?', 'Yüklemeden sonraki bildirim bulunan işaretleyicileri sayar; bunu fotoğrafladığınız kartlarla karşılaştırın. Kaçırılan bir kart fotoğraflarını atanmamış bırakmaz, komşusuna katar: "Portreler → QR kart" düzeninde sonraki kartın grubuna akar, "QR kart → portreler" düzeninde önceki kartın grubunda kalır. Kaçırılan kare o grupta sıradan bir fotoğraf gibi durur. Önizlemesini açın, kartın üzerindeki kodu yazın ve "QR işareti olarak kullan ve yeniden grupla" düğmesine basın: yükleme yeniden gruplanır ve her grup yerine oturur. Atanmış bağlantılara dokunulmaz; bu yüzden bunu atamadan önce yapın. Yalnızca sıranın son grubu, kartı kaçırıldığında atanmamış kalır.'),
+    ('Yükleme QR işareti bulunamadı dedi ya da kare hiç dışa aktarılmadı.', 'O yüklemenin bütün fotoğrafları sette, özel ve atanmamış durumda. Kare aralarındaysa yukarıdaki gibi elle işaretleyin. Hiç dışa aktarılmadıysa kart henüz sette değildir: kareyi tek başına (ya da o kişinin fotoğraflarıyla) yükleyin ki kart sete katılsın, sonra hâlâ atanmamış fotoğrafları önizlemelerinden ekleyin.'),
+    ('Bir fotoğraf atlanmış, sonraki bir yüklemede geliyor. Bir karta nasıl bağlarım?', 'Her zamanki gibi sete yükleyin; atanmamış olarak gelir. Önizlemesini açın, "Bu kişide hangi QR kart var?" altından kişinin kartını seçin ve "O kartın grubuna ekle" düğmesine basın. Fotoğraf o kartın önerilen grubuna katılır, siz atayana kadar özel kalır; yanlış karta önerilmiş bir fotoğraf da aynı yolla taşınır. Atanmış fotoğraflar yerinde kalır. Liste bu setteki kartları gösterir; hiç fotoğraflanmamış bir kart, QR karesi yüklendiğinde sete katılır.'),
+    ('RAW ya da HEIC yükleyebilir miyim?', 'Hayır, yalnızca JPEG; her biri en çok 25 MB ve bir yüklemede en çok 500 dosya. Düzenleme programınızdan dışa aktarın.'),
+    ('Yükleme dosyanın zaten var olduğunu söylüyor.', 'Her dosya, içeriğine göre çalışma alanınızın tamamında tekilleştirilir; bir karttan silinen fotoğraflar da buna dahildir. Yeniden atamanız gerekiyorsa yeni bir sürüm dışa aktarın.'),
+    ('"Atanmamış fotoğrafları sil" neyi siler?', 'Yalnızca hiçbir karta bağlı olmayan fotoğrafları; dosyalar ve kayıtlar kalıcı olarak gider. Her grup atanmış bir fotoğrafa sahip olduğunda ya da "Fotoğraf atama" ile kapatıldığında kullanılabilir.'),
+    ('QR karelerine ne olur?', 'Hiçbir alıcıya gösterilmezler; setin gruplamasını korumak için işaretleyici olarak saklanırlar.'),
+  ]},
+  {'title': 'İzinler ve kayıtlar', 'items': [
+    ('Fotoğraf durumları ne anlama geliyor?', 'Yayımlamaya hazır: bu fotoğrafı gösteren her kartta, tam olarak bu dosyayı kapsayan geçerli bir izin var. Karar bekleniyor: set izin istiyor ve kişi henüz yanıtlamadı ya da fotoğraf karardan sonra eklendi. İzin istenmedi: set izin istemiyor. İnceleme gerekiyor: henüz atanmamış ya da işlenmemiş. Özel kalsın: reddedildi ya da geri çekildi.'),
+    ('Kayıt nerede?', 'Kart sayfasında, karar geçmişinde; her kaydın, her fotoğrafın küçük bir önizlemesini içeren bir PDF\'i vardır. Hareket dökümündeki satırlar da oraya bağlanır. PDF her istekte saklanan kayıttan üretilir; o zamandan beri silinen bir fotoğrafın önizleme yeri boş kalır, özet değerleri ise onu tanımlamaya devam eder.'),
+    ('İzin metnini düzenledim. Önceki kararlara ne olur?', 'Kendilerine gösterilen metni ve sürümü aynen korurlar. Yeni kararlar yeni sürümü kullanır. Düzenleme, önceki bir izni hiçbir zaman genişletmez.'),
+    ('Bir fotoğrafı yeniden düzenleyip tekrar yükledim. İzin hâlâ geçerli mi?', 'Hayır. İzin, özet değeriyle tam olarak o dosyayı kapsar. Yeni dosya, kararı olmayan yeni bir fotoğraftır.'),
+    ('Uygulama e-posta gönderir mi?', 'Hayır. Kişinin bırakabileceği adres, elle kullanmanız içindir.'),
+    ('Kişi hakkında ne saklanır?', 'Yalnızca karar anında yazdıkları (ad, isteğe bağlı e-posta, not) ve o kayıttaki IP adresi, tarayıcı ve zaman. Açılış ve indirmelerde olayın kendisinden başka bir şey saklanmaz. İndirilen dosya, yüklediğiniz orijinaldir; kamera ve konum ayrıntıları dahil.'),
+    ('Uygulama hangi kamera ayrıntılarını saklar?', 'Uygulama, bir fotoğrafın kamera, pozlama, görüntü ve konum ayrıntılarını, GPS ve seri numaraları dahil, fotoğraf önizlemeniz için okur. Orijinal dosya bunları olduğu gibi taşır ve kişi de onu indirir; sayfada gösterilen küçük sürümlerde hiçbiri yoktur. Fotoğraf kartından silindiğinde bunlar da silinir. Konum sekmesini açmak OpenStreetMap\'ten küçük bir harita yükler; OpenStreetMap böylece fotoğrafın yaklaşık nerede çekildiğini öğrenir. Bunun dışında ona hiçbir şey gönderilmez.'),
+  ]},
+] %}
+{% else %}
+{% set sections = [
+  {'title': 'What the person photographed sees', 'items': [
+    ('What happens when someone scans a card?', 'Before you assign photos: a holding page in their language with your name and introduction, nothing to fill in. After you assign them: their photos and download links and, if the set asks for permission, one question for all the photos at the top of the page. Later: their latest decision, a PDF record and a way to change it.'),
+    ('Do I have to ask for permission in every set?', 'No. Whether you need it depends on the country and the kind of photo, so it is your call. Tick "Ask recipients for permission to publish" when you create or edit a set. Left off, the card page shows only the photos and their download links.'),
+    ('Do they have to give permission to download the photos?', 'No. Downloads never depend on permission. The photos are a gift; the question is separate.'),
+    ('What exactly do they give permission for?', 'With the default text: any use of all the photos on their card, in any medium and for any purpose, including commercial use, advertising, stock licensing and print sales, without time limit, with the credit preference they chose. The default is deliberately broad; narrow it on the Profile page where your country\'s rules call for it. The decision is for the whole card, not photo by photo; photos added later open the question again. The permission text on your profile sets the exact scope; editing it never widens a permission already given.'),
+    ('Can they change their mind?', 'Yes, any time, from the same link. A change or withdrawal supersedes the earlier decision and shows up in the Activity logs. Taking down posts you already made is your job.'),
+    ('What if they ask for their photos to be deleted?', 'They contact you; open their card and use "Delete the photos". The files go for good, from any other card showing them too. Their link says the photos were deleted, and the decision records stay.'),
+    ('How do I find a deleted photo in my own library?', 'Note the filenames on the card page before you delete: each photo keeps the camera filename you exported. Then delete it from your library, exports and drafted posts. The app keeps no preview once the photos are deleted.'),
+    ('What about minors?', 'There is no guardian path. The form asks for a confirmation of being 18 or older; anyone under 18 is asked to contact you.'),
+    ('Which languages?', 'Turkish and English. The pages follow the visitor\'s choice. The permission text and the card sentence are written by the photographer in any language they like, adding each version after the other for several languages, and the text is always shown in full.'),
+  ]},
+  {'title': 'Cards', 'items': [
+    ('Why can I download the final PDF only once?', 'Printing a sheet twice is the one realistic way of handing the same code to two people. The preview is unlimited; for more cards, generate another batch.'),
+    ('Does a card belong to a set?', 'Not until its QR frame is uploaded. Cards are printed without a set and join whichever set you upload that frame to.'),
+    ('One card for a couple or a group?', 'Yes. A photo goes on one card only, so people photographed together share one card: everyone with its link can see and download the photos. If the set asks for permission, the card records one decision, made by whoever answers. If each person should decide for themselves, give each their own card and take a separate portrait of each.'),
+    ('What if I lose a card, or one was handed out by mistake?', 'Void it on the card page. Voiding an assigned card also cuts off the person, so prefer to leave those as they are.'),
+    ('What is a virtual card?', 'The same thing as a printed card, generated on the phone and scanned from the screen. Its page shows the QR code until the card has photos. Add a note so you recognise the encounter later.'),
+  ]},
+  {'title': 'Uploading and grouping', 'items': [
+    ('Which order, portraits first or card first?', 'Whatever you actually did with the camera; choose the same at upload. On a mixed day, upload in two batches or fix the groups by hand.'),
+    ('One card in a batch was not recognised. Where did its photos go?', 'The notice after the upload counts the markers found; compare it with the cards you photographed. A missed card does not leave its photos unassigned, it merges them into a neighbour: with "Portraits → QR card" they run on into the next card\'s group, with "QR card → portraits" they stay in the previous card\'s group. The missed frame sits in that group as an ordinary photo. Open its preview, type the code printed on the card and press "Use as QR marker and regroup": the upload is grouped again and every group falls back into place. Assigned links are untouched, so do this before assigning. Only the last group of the sequence ends up unassigned when its card is missed.'),
+    ('The upload said no QR marker was found, or the frame was never exported.', 'Every photo of that upload is in the set, private and unassigned. If the frame is among them, mark it by hand as above. If it was never exported, the card is not in the set yet: upload the frame on its own (or with that person\'s photos) so the card joins the set, then add any photo still unassigned from its preview.'),
+    ('A photo was missed and comes in a later upload. How do I attach it to a card?', 'Upload it into the set as usual; it arrives unassigned. Open its preview, pick the person\'s card under "Which QR card does this person hold?" and press "Add to that card\'s group". The photo joins that card\'s proposed group, private until you assign it, and a photo proposed to the wrong card moves the same way. Assigned photos stay where they are. The list shows the cards already in this set; a card that was never photographed joins the set once its QR frame is uploaded.'),
+    ('Can I upload RAW or HEIC?', 'No, JPEG only, up to 25 MB each and 500 files per upload. Export from your editor.'),
+    ('The upload says the file already exists.', 'Each file is deduplicated by its content across your whole workspace, including photos deleted from a card. Export a new version if you need to assign it again.'),
+    ('What does "Delete unassigned photos" delete?', 'Only photos attached to no card; their files and rows go for good. It is available once every group has an assigned photo or was closed with "Do not assign photos".'),
+    ('What happens to the QR frames?', 'They are never shown to a recipient; they are kept as markers so the set\'s grouping can be redone.'),
+  ]},
+  {'title': 'Permissions and records', 'items': [
+    ('What do the photo states mean?', 'Ready to publish: every card showing this photo has a current permission covering this exact file. Awaiting decision: the set asks for permission and the person has not answered yet, or the photo was added after their answer. Permission not asked: the set does not ask. Needs review: not assigned or not processed yet. Keep private: declined or withdrawn.'),
+    ('Where is the record?', 'On the card page, under the decision history; every record has a PDF with a small thumbnail of each photo. The lines in the Activity logs link there too. The PDF is rendered from the stored record on every request; a photo deleted since then leaves its thumbnail space empty, while its hashes still identify it.'),
+    ('I edited the permission text. What happens to earlier decisions?', 'They keep the exact text and version they were shown. New decisions use the new version. Editing never widens an earlier permission.'),
+    ('I re-edited a photo and uploaded it again. Is the permission still valid?', 'No. A permission covers the exact file, by its hash. A new file is a new photo with no decision.'),
+    ('Does the app send email?', 'No. The address a person may leave is for you to use by hand.'),
+    ('What is stored about the person?', 'Only what they type at decision time (name, optional email, note), with the IP address, browser and time on that record. Opening and downloading store nothing beyond the event itself. The file they download is your original, camera and location details included.'),
+    ('Which camera details does the app keep?', 'The app reads a photo\'s camera, exposure, image and location details, including GPS and serial numbers, for your photo preview. The original file keeps them as they are, and that is the file the person downloads; the smaller versions shown on the page carry none of them. They are cleared when the photo is deleted from its card. Opening the Location tab loads a small map from OpenStreetMap, which then learns roughly where the photo was taken; nothing is sent to it otherwise.'),
+  ]},
+] %}
+{% endif %}
+<div class="page-heading compact"><div><span class="eyebrow">{{ t('f_eyebrow') }}</span><h1>{{ t('faq') }}</h1><p class="muted">{{ t('f_intro') }}</p></div></div>
+<article class="faq">
+{% for section in sections %}
+<section class="panel faq-section"><h2>{{ section.title }}</h2>
+{% for question, answer in section['items'] %}<div class="faq-item"><h3>{{ question }}</h3><p>{{ answer }}</p></div>{% endfor %}
+</section>
+{% endfor %}
+
+<p class="muted"><a href="{{ base }}/dashboard/guide">{{ t('guide') }} {{ icon('arrow-up-right', 18) }}</a></p>
+</article>
+{% endblock %}

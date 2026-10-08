@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-heading compact">
+  <div>
+    <h1>{{ t('cards') }}</h1>
+    <p class="muted">{{ t('cards_intro') }}</p>
+  </div>
+</div>
+{% if purged is not none %}<div class="notice success">{{ t('purged_one') if purged|int == 1 else t('purged_many')|replace('{n}', purged) }}</div>{% endif %}
+<nav class="tabs">
+  {% for name in ['active', 'opened', 'unused'] %}
+  <a href="{{ base }}/dashboard/cards?tab={{ name }}" {% if tab == name %}aria-current="page"{% endif %}>{{ t('tab_' + name) }}<span class="tab-count">{{ counts[name] }}</span></a>
+  {% endfor %}
+</nav>
+<div class="two-columns">
+  <section>
+    {% if tab == 'unused' %}
+      {% for b in batches %}
+      <section class="panel batch-panel">
+        <h3>{{ b.label }}</h3>
+        <p class="muted">{{ t('batch_unused_meta')|replace('{unused}', batch_unused.get(b.id, 0))|replace('{total}', b.quantity)|replace('{date}', b.created_at.strftime('%d %b %Y')) }}</p>
+        {% if b.downloaded_at %}
+        <p class="muted">{{ t('batch_downloaded')|replace('{date}', b.downloaded_at.strftime('%d %b %Y')) }}</p>
+        {% elif not local %}
+        <a class="button" href="{{ base }}/dashboard/batches/{{ b.id }}/pdf">{{ t('pdf_download') }} {{ icon('arrow-up-right', 18) }}</a>
+        {% else %}
+        <p class="muted">{{ t('batch_local_note') }}</p>
+        {% endif %}
+        <a class="button secondary" href="{{ base }}/dashboard/batches/{{ b.id }}/pdf?preview=1">{{ t('pdf_preview') }} {{ icon('arrow-up-right', 18) }}</a>
+      </section>
+      {% endfor %}
+      {% if unused_one_offs %}<p class="muted">{{ t('unused_one_offs')|replace('{n}', unused_one_offs) }}</p>{% endif %}
+      {% if not batches and not unused_one_offs %}<div class="panel"><p class="muted">{{ t('unused_empty') }}</p></div>{% endif %}
+      <section class="panel qr-purge-panel">
+        <h2>{{ t('unused_heading') }}</h2>
+        <p class="muted">{{ t('unused_one') if counts.unused == 1 else t('unused_many')|replace('{n}', counts.unused) }}</p>
+        <form action="{{ base }}/dashboard/cards/purge-unused" method="post" data-confirm="{{ t('purge_confirm') }}">
+          {{ hidden() }}
+          <button class="danger" {% if not counts.unused %}disabled{% endif %}>{{ t('purge_one') if counts.unused == 1 else t('purge_many') }}</button>
+        </form>
+        <small>{{ t('purge_note') }}</small>
+      </section>
+    {% else %}
+      {% if tab == 'opened' %}<p class="muted">{{ t('opened_intro') }}</p>{% endif %}
+      <div class="panel table-scroll">
+        <table>
+          <thead><tr><th>{{ t('th_code') }}</th><th>{{ t('th_batch') }}</th><th>{{ t('th_status') }}</th><th>{{ t('th_set') }}</th></tr></thead>
+          <tbody>
+          {% for c in cards %}
+            <tr>
+              <td><a class="mono" href="{{ base }}/dashboard/cards/{{ c.id }}">{{ format_code(c.code) }} {{ icon('arrow-up-right', 18) }}</a>{% if c.sequence %}<small>{{ t('card_number')|replace('{n}', c.sequence) }}</small>{% endif %}</td>
+              <td>{% if c.batch_id %}{% for b in batches if b.id == c.batch_id %}{{ b.label }}{% endfor %}{% else %}{{ t('one_off') }}{% endif %}</td>
+              <td><span class="badge">{{ t('status_' + c.status) }}</span></td>
+              <td>{% if c.photo_set_id %}<span class="badge ready">{{ t('qr_detected') }}</span>{% else %}<span class="muted">{{ t('not_detected') }}</span>{% endif %}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="4">{{ t('opened_empty') if tab == 'opened' else t('empty') + ' ' + t('cards_empty_hint') }}</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </section>
+  <aside>
+    <section class="panel">
+      <h2>{{ t('batch_heading') }}</h2>
+      <form class="stack" action="{{ base }}/dashboard/batches" method="post">
+        {{ hidden() }}
+        <label>{{ t('batch_name') }}<input name="label" placeholder="{{ t('batch_placeholder') }}" required maxlength="150"></label>
+        <label>{{ t('quantity') }}<input type="number" name="quantity" value="10" min="1" max="100" required></label>
+        <label>{{ t('card_text') }}<textarea name="card_text" maxlength="{{ card_text_max }}" placeholder="{{ t('pr_card_text_placeholder') }}">{{ photographer.card_text }}</textarea></label>
+        <small>{{ t('card_text_note') }}</small>
+        <button>{{ t('generate_cards') }}</button>
+        <small>{{ t('batch_note') }}</small>
+        <small>{{ t('batch_once_note') }}</small>
+      </form>
+    </section>
+    <section class="panel">
+      <h2>{{ t('one_card') }}</h2>
+      <p class="muted">{{ t('p_lead') }}</p>
+      <form class="stack" action="{{ base }}/dashboard/cards" method="post">
+        {{ hidden() }}
+        <label>{{ t('p_note') }}<input name="notes" placeholder="{{ t('p_note_placeholder') }}" maxlength="1000"></label>
+        <button>{{ t('p_generate') }}</button>
+        {% if local %}<small>{{ t('p_notice') }}</small>{% endif %}
+      </form>
+    </section>
+  </aside>
+</div>
+{% endblock %}

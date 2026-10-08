@@ -1,0 +1,27 @@
+{% extends 'base.html' %}{% block public_content %}
+{% if config.contact_email %}{% set contact %}<a href="mailto:{{ config.contact_email }}">{{ config.contact_email }}</a>{% endset %}{% endif %}
+<article class="narrow prose">
+<h1>{{ t('privacy') }}</h1>
+{% if lang == 'tr' %}
+<p>People in Photographs, fotoğraflarınızı özel olarak teslim eder ve fotoğrafçı izin istiyorsa onları yayımlamasına izin verip vermediğinizi kaydeder. Fotoğraflarınızı indirmek için izin vermeniz gerekmez.</p>
+<h2>Bağlantınız özeldir</h2>
+<p>Kart bağlantısına sahip olan herkes galeriye erişebilir ve karar bildirebilir. Bağlantıyı güvende tutun. Adres, kimlik doğrulaması değildir.</p>
+<h2>Saklananlar</h2>
+<p>Fotoğraflar ve bir karar verdiğinizde: kararınız; izin verirseniz yazdığınız ad, isteğe bağlı e-posta adresiniz, adınızın belirtilmesiyle ilgili tercihiniz ve belirtilmesini istediğiniz ad; isteğe bağlı notunuz; karar verdiğiniz fotoğraf sürümleri; gösterilen metin; zaman; IP adresi, tarayıcı kullanıcı aracısı, kabul edilen diller ve tarayıcının sağladığı platform/istemci bilgileri. İndirdiğiniz dosya, fotoğrafçının yüklediği orijinaldir ve kamera ayrıntılarını, çekildiği yer dahil, olduğu gibi taşır; sayfada gösterilen küçük sürümlerde bunlar yoktur. Reklam veya analiz izleyicileri yoktur. Dil tercihi ve form güvenliği için gerekli çerezler kullanılır.</p>
+<h2>Kararınızı değiştirmek</h2>
+<p>Kartınıza dönerek kararınızı değiştirebilir veya izninizi geri çekebilirsiniz. Fotoğraflarınızın silinmesini istiyorsanız fotoğrafçıya başvurun{% if contact %}: {{ contact }}{% endif %}. Fotoğrafçı fotoğrafları uygulamadan sildiğinde galeriniz kapanır ve dosyalar uygulamanın deposundan kalıcı olarak silinir; fotoğrafçının başka yerlerde tuttuğu kopyalar, örneğin yedekler, fotoğrafçının sorumluluğundadır.</p>
+<h2>Saklama</h2>
+<p>Veriler, fotoğrafçı silene kadar fotoğrafçının kendi sunucusunda veya deposunda kalır. Karar kayıtları, adlar ve IP adresleri dahil, fotoğraflar silindiğinde silinmez; kimlik bilgilerinin karartılması henüz uygulanmadı.</p>
+{% else %}
+<p>People in Photographs privately delivers your photos and records, where the photographer asks, whether you let them publish them. Downloads never require permission.</p>
+<h2>Your link is private</h2>
+<p>Anyone holding your card link can access its gallery and submit a decision. Keep it safe. Possession of a link is not identity verification.</p>
+<h2>What is stored</h2>
+<p>Photos and, when you make a decision: the decision; when giving permission, a typed name, an optional email address, your credit preference and the name you want credited; an optional note; the image versions decided on; the wording shown; the time; the IP address, browser user-agent, accepted languages and browser-provided platform/client hints. The file you download is the photographer's original and keeps its camera details as they are, including where it was taken; the smaller versions shown on the page carry none of them. There are no advertising or analytics trackers. Essential form-security and language-preference cookies are used.</p>
+<h2>Your choices</h2>
+<p>Return to your card to change or withdraw permission. To have your photos deleted, contact the photographer{% if contact %} at {{ contact }}{% endif %}. When they delete them from the app, your gallery closes and the files are erased from the app's storage for good; copies the photographer keeps elsewhere, such as backups, are theirs to remove.</p>
+<h2>Retention</h2>
+<p>Data stays on the photographer's own server or storage until they remove it. Decision records, including names and IP addresses, are retained when photos are deleted; identity redaction is not yet implemented.</p>
+{% endif %}
+</article>
+{% endblock %}
