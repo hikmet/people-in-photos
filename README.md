@@ -1,10 +1,10 @@
 # People in Photographs
 
-A self-hosted web app that enables a street photographer to share the photos with people they photographed without exchange of contact info. The photographer could also ask for consent to publish if they choose to. 
+A self-hosted web app that enables a street photographer to share photos with the people they photographed without exchange of contact info. The photographer can also ask for consent to publish if they choose to. 
 
 You hand a card with a QR code to the person you photographed after you also photograph the QR code with your camera. Later when you have the photos uploaded to this app, it will split the sequence by the QR code frames detected. 
 
-The person opens the card, downloads their photos, and if you asked they also respond to a consent to publish request as well. No email, no accounts, and nothing typed on the street. 
+The person opens the card, downloads their photos, and if you asked they also respond to a consent to publish request. No email, no accounts, and nothing typed on the street. 
 
 One photographer behind one password; English and Turkish.
 
@@ -51,7 +51,7 @@ Profile & release page. [DESIGN.md](DESIGN.md) describes how everything works.
 
 I designed the app and built it entirely with Claude Code, using an agent-first workflow from spec to working product.
 
-It started as a hosted, multi-photographer service. Because I didn’t want to charge for it, and photo storage gets expensive at scale without payments, I removed multi-account support. It is now a single-owner app that installs with one Docker command; all you need is a server with a domain. DESIGN.md covers the architecture.
+It started as a hosted, multi-photographer service. Because I didn’t want to charge for it, and photo storage gets expensive at scale without payments, I removed multi-account support. It is now a single-owner app that installs with one Docker command; all you need is a server with a domain. 
 
 ## License
 
