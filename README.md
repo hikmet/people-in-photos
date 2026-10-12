@@ -8,6 +8,9 @@ The person opens the card, downloads their photos, and if you asked they also re
 
 One photographer behind one password; English and Turkish.
 
+## Why this exists
+
+A street photographer friend told me he’d mostly stopped shooting. People he photographed often asked for a copy, and there was no easy way to get it to them. Getting their permission to publish, on social media or in print, was even harder. I built this to solve both problems without asking strangers for an email address on the sidewalk.
 
 ## Run it locally
 
@@ -43,6 +46,12 @@ in `.env`. The app makes no backups, so copy the volume (and the bucket) somewhe
 
 The default permission text has not been reviewed by a lawyer; adapt it to your country on the
 Profile & release page. [DESIGN.md](DESIGN.md) describes how everything works.
+
+## How it was built
+
+I designed the app and built it entirely with Claude Code, using an agent-first workflow from spec to working product.
+
+It started as a hosted, multi-photographer service. Because I didn’t want to charge for it, and photo storage gets expensive at scale without payments, I removed multi-account support. It is now a single-owner app that installs with one Docker command; all you need is a server with a domain. DESIGN.md covers the architecture.
 
 ## License
 
